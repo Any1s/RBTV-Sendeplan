@@ -140,7 +140,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     }
 
     private String formatGroupDate(Calendar date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE dd.MM.yyyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE dd.MM.yyyy");
         return sdf.format(date.getTime());
     }
 
