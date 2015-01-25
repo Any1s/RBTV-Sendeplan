@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.view.View;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -52,6 +53,11 @@ public class DataFragment extends Fragment {
     private boolean isLoading = false;
 
     /**
+     * References the last activity that issued a load instruction
+     */
+    private Activity activity;
+
+    /**
      * Classes using this fragment must implement this interface. It's functions will be called
      * by this class on certain events.
      */
@@ -71,6 +77,8 @@ public class DataFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
+        this.activity = activity;
+
         try {
             this.callbacks = (Callbacks) activity;
         } catch (ClassCastException e) {
@@ -82,6 +90,7 @@ public class DataFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         callbacks = null;
+        activity = null;
     }
 
     public SparseArray<EventGroup> getEventGroups() {
@@ -93,6 +102,11 @@ public class DataFragment extends Fragment {
      */
     public void loadCalendarData() {
         if (isLoading) return;
+
+        // Show indicator
+        if (activity != null) {
+            activity.findViewById(R.id.download_indicator).setVisibility(View.VISIBLE);
+        }
 
         // Remember loading state
         isLoading = true;
@@ -237,6 +251,12 @@ public class DataFragment extends Fragment {
                 // TODO
                 e.printStackTrace();
             }
+
+            // Hide download indicator
+            if (activity != null) {
+                activity.findViewById(R.id.download_indicator).setVisibility(View.GONE);
+            }
+
             // Loading has finished
             isLoading = false;
         }
