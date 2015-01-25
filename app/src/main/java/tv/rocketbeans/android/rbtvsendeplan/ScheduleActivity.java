@@ -2,7 +2,11 @@ package tv.rocketbeans.android.rbtvsendeplan;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.SparseArray;
@@ -10,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
 /**
  * Main activity containing the schedule.
@@ -47,7 +52,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
 
         // Check for cached data
         if (dataFragment.getEventGroups() == null) { // TODO also reload after certain time since last time
-            dataFragment.loadCalendarData();
+            loadCalendarData();
         } else {
             onDataLoaded(dataFragment.getEventGroups());
         }
@@ -85,14 +90,39 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_reload) {
-            if (dataFragment != null) {
-                dataFragment.loadCalendarData();
-            }
+        switch (id) {
+            case R.id.action_reload:
+                loadCalendarData();
+                break;
+            case R.id.action_settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Loads calendar data if all constraints are met
+     */
+    private void loadCalendarData() {
+        // Check for WiFi constraint preference
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences.getBoolean(getString(R.string.pref_wifi_key), false)) {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            if (!wifi.isConnected()) {
+                Toast.makeText(this, getString(R.string.wifi_not_connected), Toast.LENGTH_LONG)
+                        .show();
+                return;
+            }
+        }
+
+        // Actually load data
+        if (dataFragment != null) {
+            dataFragment.loadCalendarData();
+        }
     }
 
     @Override

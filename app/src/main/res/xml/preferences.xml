@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="@string/pref_wifi_key"
+        android:title="@string/pref_wifi"
+        android:summary="@string/pref_wifi_summ"
+        android:defaultValue="true" />
+</PreferenceScreen>
