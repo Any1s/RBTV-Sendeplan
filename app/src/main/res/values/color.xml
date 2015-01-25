@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="live_background">#ff7d7d</color>
+    <color name="new_background">#8ab2ff</color>
+    <color name="default_background">#ffffff</color>
+    <color name="running_background">#fff79f</color>
+    <color name="event_list_group_expanded_background">#cccccc</color>
+    <color name="event_list_group_collapsed_background">#dddddd</color>
+    <color name="event_list_selected_background">#fff79f</color>
+</resources>

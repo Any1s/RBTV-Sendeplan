@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tv.rocketbeans.android.rbtvsendeplan.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="horizontal" android:paddingLeft="@dimen/event_list_group_padding_left"
+    android:paddingRight="@dimen/event_list_group_padding_right"
+    android:paddingTop="@dimen/event_list_group_padding_top"
+    android:paddingBottom="@dimen/event_list_group_padding_bottom">
+
+    <TextView
+        android:id="@+id/event_group_indicator"
+        android:layout_width="@dimen/event_list_group_indicator_width"
+        android:layout_height="wrap_content"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/event_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/group_text_size" />
+
+</tv.rocketbeans.android.rbtvsendeplan.CheckableLinearLayout>

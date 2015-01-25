@@ -1,0 +1,18 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">0dp</dimen>
+    <dimen name="activity_vertical_margin">0dp</dimen>
+    <dimen name="text_size">20sp</dimen>
+    <dimen name="event_list_padding_left">10dp</dimen>
+    <dimen name="event_list_padding_right">10dp</dimen>
+    <dimen name="event_list_padding_top">3dp</dimen>
+    <dimen name="event_list_padding_bottom">3dp</dimen>
+    <dimen name="event_list_group_padding_left">10dp</dimen>
+    <dimen name="event_list_group_padding_right">10dp</dimen>
+    <dimen name="event_list_group_padding_top">5dp</dimen>
+    <dimen name="event_list_group_padding_bottom">5dp</dimen>
+    <dimen name="event_list_type_width">34dp</dimen>
+    <dimen name="event_list_date_width">60dp</dimen>
+    <dimen name="event_list_group_indicator_width">40dp</dimen>
+    <dimen name="group_text_size">24sp</dimen>
+</resources>
