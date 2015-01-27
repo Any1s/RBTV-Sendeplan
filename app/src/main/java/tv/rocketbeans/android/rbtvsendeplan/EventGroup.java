@@ -30,4 +30,13 @@ public class EventGroup {
     public List<Event> getEvents() {
         return events;
     }
+
+    /**
+     * Checks if the group contains an event
+     * @param event Event to be searched for
+     * @return true if the group contains the event, false else
+     */
+    public boolean contains(Event event) {
+        return events.contains(event);
+    }
 }

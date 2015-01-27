@@ -1,11 +1,17 @@
 package tv.rocketbeans.android.rbtvsendeplan;
 
 import android.app.FragmentManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -13,14 +19,24 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main activity containing the schedule.
  */
 public class ScheduleActivity extends ActionBarActivity implements DataFragment.Callbacks,
-        ExpandableListView.OnChildClickListener {
+        ExpandableListView.OnChildClickListener, AdapterView.OnItemLongClickListener,
+        ExpandableEventListAdapter.ReminderCallbacks {
+
+    /**
+     * Intent key for the messenger extra
+     */
+    public static final String EXTRA_MESSENGER = "messenger";
 
     /**
      * URL to the RocketBeans.TV Twitch channel
@@ -36,6 +52,56 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
      * The expandable list used to display the data
      */
     private ExpandableListView listView;
+
+    /**
+     * Connection to the reminder service
+     */
+    private ReminderConnection reminderConnection = new ReminderConnection();
+
+    /**
+     * Reference to the reminder service
+     */
+    private ReminderService reminderService = null;
+
+    /**
+     * Buffers reminder toggle events until the service has been bound
+     */
+    private List<Event> reminderToggleBuffer = new ArrayList<>();
+
+    /**
+     * Handler used to communicate with the reminder service
+     */
+    private final Handler messageHandler = new MessageHandler();
+
+    /**
+     * Connection to the reminder service
+     */
+    private class ReminderConnection implements ServiceConnection {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ReminderService.ServiceBinder binder = (ReminderService.ServiceBinder) service;
+            reminderService = binder.getReminderService();
+            onBind();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            reminderService = null;
+        }
+    }
+
+    /**
+     * Message handler class used to communicate with the reminder service
+     */
+    public class MessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.arg1 == ReminderService.FLAG_DATA_CHANGED) {
+                updateListView();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +125,21 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        Intent serviceIntent = new Intent(this, ReminderService.class);
+        serviceIntent.putExtra(EXTRA_MESSENGER, new Messenger(messageHandler));
+        getApplicationContext().startService(serviceIntent);
+        Intent bindIntent = new Intent(this, ReminderService.class);
+        getApplicationContext().bindService(bindIntent, new ReminderConnection(), BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
     public void onDataLoaded(SparseArray<EventGroup> eventGroups) {
         if (listView == null) {
             listView = (ExpandableListView) findViewById(R.id.listView);
@@ -74,6 +155,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         }
 
         listView.setOnChildClickListener(this);
+        listView.setOnItemLongClickListener(this);
     }
 
     @Override
@@ -128,11 +210,100 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                 int childPosition, long id) {
+        Event event = dataFragment.getEventGroups().get(groupPosition).getEvents()
+                .get(childPosition);
+        if (event.isCurrentlyRunning()) {
+            openTwitchChannel();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Attempts to open the rocketbeanstv twitch channel url
+     */
+    private void openTwitchChannel() {
         Uri twitch = Uri.parse(TWITCH_URL);
         Intent intent = new Intent(Intent.ACTION_VIEW, twitch);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
-        return true;
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position,
+                                   long id) {
+        /*
+        Long clicked items are either the running event, in which case we open twitch, or a future
+        event for which we will toggle it's reminder state.
+         */
+        long packedPosition =
+                ((ExpandableListView) adapterView).getExpandableListPosition(position);
+        if (ExpandableListView.getPackedPositionType(packedPosition) ==
+                ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
+            int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
+            Event event = dataFragment.getEventGroups().get(groupPosition).getEvents()
+                    .get(childPosition);
+            // The currently running event is selectable, so it has to be filtered here
+            if(!event.isCurrentlyRunning()) {
+                toggleReminderState(event);
+            } else {
+                openTwitchChannel();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Changes the reminder state of an event from "remind" to "do not remind" or vice versa
+     * @param event The event to get it's state toggled
+     */
+    private void toggleReminderState(Event event) {
+        // Service has not yet been bound
+        if (reminderService == null) {
+            reminderToggleBuffer.add(event);
+            return;
+        }
+
+        // Service is available
+        reminderService.toggleState(event);
+        updateListView();
+    }
+
+    /**
+     * Is called after a service has been bound
+     */
+    private void onBind() {
+        // If there are buffered reminder state toggle events, handle them now
+        if (!reminderToggleBuffer.isEmpty()) {
+            for (Event e : reminderToggleBuffer) {
+                reminderService.toggleState(e);
+            }
+            // Update if data has changed
+            reminderService.updateReminderDates(dataFragment.getEventGroups());
+        } else {
+            // Initial bind -> update list with reminder info
+            updateListView();
+        }
+    }
+
+    @Override
+    public boolean hasReminder(Event event) {
+        if (reminderService != null) {
+            return reminderService.hasReminder(event);
+        }
+        return false;
+    }
+
+    /**
+     * Updates the list view data to the current version
+     */
+    private void updateListView() {
+        if (listView != null) {
+            ((ExpandableEventListAdapter) listView.getExpandableListAdapter())
+                    .notifyDataSetChanged();
+        }
     }
 }

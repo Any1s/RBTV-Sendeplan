@@ -19,8 +19,16 @@
         android:textSize="@dimen/text_size"/>
     <TextView
         android:id="@+id/event_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size"/>
+    <TextView
+        android:id="@+id/event_reminder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/event_list_reminder_padding_left"
+        android:textSize="@dimen/event_list_reminder_size"
+        android:text="@string/reminder_icon"/>
 
 </tv.rocketbeans.android.rbtvsendeplan.CheckableLinearLayout>

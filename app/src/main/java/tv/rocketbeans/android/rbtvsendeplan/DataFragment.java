@@ -172,8 +172,9 @@ public class DataFragment extends Fragment {
             }
             Pair<Event.Type, String> p = processSummary(events.getJSONObject(i)
                     .getString("summary"));
+            String id = events.getJSONObject(i).getString("id");
             curList.add(new Event((Calendar) eventStartDate.clone(), (Calendar) eventEndDate.clone()
-                    , p.second, p.first));
+                    , p.second, p.first, id));
         }
         eventGroups.put(j++, new EventGroup(curDate, curList)); // Last group
 
@@ -232,7 +233,7 @@ public class DataFragment extends Fragment {
                         builder.append(line);
                     }
                 } else {
-                    Log.e(ScheduleActivity.class.toString(), "Failed to download file " + statusCode);
+                    // TODO display download failed message?
                 }
             } catch (IOException e) {
                 e.printStackTrace();

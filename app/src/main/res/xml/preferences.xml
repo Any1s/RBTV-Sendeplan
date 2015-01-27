@@ -5,4 +5,14 @@
         android:title="@string/pref_wifi"
         android:summary="@string/pref_wifi_summ"
         android:defaultValue="true" />
+    <CheckBoxPreference
+        android:key="@string/pref_vibrate_key"
+        android:title="@string/pref_vibrate"
+        android:summary="@string/pref_vibrate_summary"
+        android:defaultValue="true" />
+    <CheckBoxPreference
+        android:key="@string/pref_led_key"
+        android:title="@string/pref_led"
+        android:summary="@string/pref_led_summary"
+        android:defaultValue="true"/>
 </PreferenceScreen>

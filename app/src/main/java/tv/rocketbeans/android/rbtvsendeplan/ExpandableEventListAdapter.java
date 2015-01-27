@@ -3,6 +3,7 @@ package tv.rocketbeans.android.rbtvsendeplan;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.StateListDrawable;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -20,6 +21,9 @@ import java.util.Calendar;
 public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     private final SparseArray<EventGroup> eventGroups;
     private LayoutInflater inflater;
+    private Activity activity;
+    private ReminderCallbacks callbacks;
+    private final Typeface iconFont;
 
     /**
      * View Holder for the list entries, using the Holder Pattern.
@@ -28,6 +32,11 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         public TextView dateView;
         public TextView typeView;
         public TextView nameView;
+        public TextView reminderView;
+    }
+
+    public interface ReminderCallbacks {
+        public boolean hasReminder(Event event);
     }
 
     /**
@@ -38,6 +47,9 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     public ExpandableEventListAdapter(Activity activity, SparseArray<EventGroup> eventGroups) {
         this.eventGroups = eventGroups;
         inflater = activity.getLayoutInflater();
+        iconFont = Typeface.createFromAsset(activity.getAssets(), "androidicons.ttf");
+        this.activity = activity;
+        callbacks = (ReminderCallbacks) activity;
     }
 
     @Override
@@ -52,6 +64,8 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
             eventHolder.dateView = (TextView) rowView.findViewById(R.id.event_date);
             eventHolder.typeView = (TextView) rowView.findViewById(R.id.event_type);
             eventHolder.nameView = (TextView) rowView.findViewById(R.id.event_name);
+            eventHolder.reminderView = (TextView) rowView.findViewById(R.id.event_reminder);
+            eventHolder.reminderView.setTypeface(iconFont);
             rowView.setTag(eventHolder);
         }
 
@@ -59,25 +73,35 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
 
         Event event = eventGroups.get(groupPosition).getEvents().get(childPosition);
         String indicator = "";
+        boolean currentlyRunning = event.isCurrentlyRunning();
 
         // Type colors for the whole row
         Resources resources = rowView.getResources();
         StateListDrawable stateList = new StateListDrawable();
-        stateList.addState(new int[]{android.R.attr.state_pressed},
-                resources.getDrawable(R.color.event_list_selected_background));
         if (event.getType().equals(Event.Type.NEW)) {
+            stateList.addState(new int[] {android.R.attr.state_pressed},
+                    resources.getDrawable(currentlyRunning ? R.color.running_background_selected
+                            : R.color.new_background_selected));
             stateList.addState(new int[]{}, resources.getDrawable(R.color.new_background));
             indicator = "[N]";
         } else if (event.getType().equals(Event.Type.LIVE)) {
+            stateList.addState(new int[] {android.R.attr.state_pressed},
+                    resources.getDrawable(currentlyRunning ? R.color.running_background_selected
+                            : R.color.live_background_selected));
             stateList.addState(new int[]{}, resources.getDrawable(R.color.live_background));
             indicator = "[L]";
         } else {
+            stateList.addState(new int[] {android.R.attr.state_pressed},
+                    resources.getDrawable(currentlyRunning ? R.color.running_background_selected
+                            : R.color.default_background_selected));
             stateList.addState(new int[]{}, resources.getDrawable(R.color.default_background));
         }
+
+        // Commit background colors
         rowView.setBackgroundDrawable(stateList);
 
         // Indicate the currently running
-        if (isCurrentlyRunning(event)) {
+        if (currentlyRunning) {
             eventHolder.nameView.setBackgroundColor(rowView.getResources()
                     .getColor(R.color.running_background));
         } else {
@@ -89,18 +113,34 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         eventHolder.dateView.setText(formatEventDate(event.getStartDate()));
         eventHolder.typeView.setText(indicator);
         eventHolder.nameView.setText(event.getTitle());
+        eventHolder.reminderView.setTextColor(getIconColor(event));
 
         return rowView;
     }
 
     /**
-     * Determines if an event is currently running in respect to the device's time
-     * @param event Event to be checked
-     * @return true if the event has started and has not yet finished, false else
+     * Determines the color of an reminder icon for an event based on set reminders and it's date
+     * @param event The event corresponding to the icon in question
+     * @return The color id
      */
-    private boolean isCurrentlyRunning(Event event) {
+    private int getIconColor(Event event) {
+        if (event.isCurrentlyRunning() || isOver(event)) {
+            return activity.getResources().getColor(R.color.event_list_reminder_icon_hidden);
+        }
+        if (callbacks.hasReminder(event)) {
+            return activity.getResources().getColor(R.color.event_list_reminder_icon_enabled);
+        }
+        return activity.getResources().getColor(R.color.event_list_reminder_icon_disabled);
+    }
+
+    /**
+     * Determines if an event is over
+     * @param event Event to be checked
+     * @return true if the event has ended, false else
+     */
+    private boolean isOver(Event event) {
         Calendar now = Calendar.getInstance();
-        return now.compareTo(event.getStartDate()) == 1 && now.compareTo(event.getEndDate()) == -1;
+        return now.compareTo(event.getEndDate()) == 1;
     }
 
     /**
@@ -115,7 +155,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return isCurrentlyRunning(eventGroups.get(groupPosition).getEvents().get(childPosition));
+        return !isOver(eventGroups.get(groupPosition).getEvents().get(childPosition));
     }
 
     @Override
@@ -139,6 +179,11 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         return rowView;
     }
 
+    /**
+     * Formats the group date display string
+     * @param date Calendar to be formatted
+     * @return Formatted date
+     */
     private String formatGroupDate(Calendar date) {
         SimpleDateFormat sdf = new SimpleDateFormat("EEE dd.MM.yyyy");
         return sdf.format(date.getTime());
@@ -174,6 +219,10 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         return eventGroups.get(groupPosition).getEvents().size();
     }
 
+    /**
+     * Tries to find the day corresponding to the current day
+     * @return The group id if a corresponding group is found, -1 else
+     */
     public int findTodayGroup() {
         Calendar today = Calendar.getInstance();
         for (int i = 0; i < eventGroups.size(); i++) {
