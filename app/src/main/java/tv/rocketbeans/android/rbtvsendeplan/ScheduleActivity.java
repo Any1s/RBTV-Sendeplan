@@ -74,6 +74,11 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     private final Handler messageHandler = new MessageHandler();
 
     /**
+     * Flag used to signal changed calendar data
+     */
+    private boolean dataChanged = false;
+
+    /**
      * Connection to the reminder service
      */
     private class ReminderConnection implements ServiceConnection {
@@ -156,6 +161,13 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
 
         listView.setOnChildClickListener(this);
         listView.setOnItemLongClickListener(this);
+
+        // Update reminder service data
+        if (reminderService == null) {
+            dataChanged = true;
+        } else {
+            reminderService.updateReminderDates(dataFragment.getEventGroups());
+        }
     }
 
     @Override
@@ -283,16 +295,19 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
             }
             // Update if data has changed
             reminderService.updateReminderDates(dataFragment.getEventGroups());
-        } else {
-            // Initial bind -> update list with reminder info
-            updateListView();
+        } else if (dataChanged) {
+            reminderService.updateReminderDates(dataFragment.getEventGroups());
+            dataChanged = false;
         }
+        updateListView();
     }
 
     @Override
     public boolean hasReminder(Event event) {
         if (reminderService != null) {
             return reminderService.hasReminder(event);
+        } else {
+            dataChanged = true;
         }
         return false;
     }
@@ -303,7 +318,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     private void updateListView() {
         if (listView != null) {
             ((ExpandableEventListAdapter) listView.getExpandableListAdapter())
-                    .notifyDataSetChanged();
+                    .notifyDataSetInvalidated();
         }
     }
 }

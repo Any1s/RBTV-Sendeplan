@@ -342,6 +342,7 @@ public class ReminderService extends Service {
      * @param eventGroups new data
      */
     public void updateReminderDates(SparseArray<EventGroup> eventGroups) {
+        if (eventGroups == null) return;
         boolean hasChanged = false;
         for (int i = 0; i < eventGroups.size(); i++) {
             // Check all events in each group
@@ -351,11 +352,13 @@ public class ReminderService extends Service {
                 }
             }
         }
+
+        // Remove reminders for events that are no longer present in the data
+        hasChanged = hasChanged || removeObsoleteReminders(eventGroups);
+
         // Inform activity if any changes occurred
         if (hasChanged) sendMessage(FLAG_DATA_CHANGED);
 
-        // Remove reminders for events that are no longer present in the data
-        removeObsoleteReminders(eventGroups);
         scheduleBackup();
     }
 
@@ -391,14 +394,16 @@ public class ReminderService extends Service {
      * Deletes reminders for events that are no longer in the data set
      * @param eventGroups The underlying data set
      */
-    private void removeObsoleteReminders(SparseArray<EventGroup> eventGroups) {
+    private boolean removeObsoleteReminders(SparseArray<EventGroup> eventGroups) {
+        if (eventGroups == null) return false;
+        boolean hasChanged = false;
         Iterator<Map.Entry<String, Event>> iterator = idToEventMap.entrySet().iterator();
         Map.Entry<String, Event> entry;
         while (iterator.hasNext()) {
             entry = iterator.next();
             boolean stillExists = false;
             for (int i = 0; i < eventGroups.size(); i++) {
-                stillExists = stillExists || eventGroups.get(i).contains(entry.getValue());
+                stillExists = eventGroups.get(i).contains(entry.getValue().getId());
                 if (stillExists) break;
             }
             if (!stillExists) {
@@ -408,8 +413,11 @@ public class ReminderService extends Service {
                 // underlying set!
                 iterator.remove();
                 removeReminder(entry.getValue());
+                hasChanged = true;
             }
         }
+
+        return hasChanged;
     }
 
     /**

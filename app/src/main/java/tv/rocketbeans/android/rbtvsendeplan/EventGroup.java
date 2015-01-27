@@ -33,10 +33,13 @@ public class EventGroup {
 
     /**
      * Checks if the group contains an event
-     * @param event Event to be searched for
+     * @param id The event's ID
      * @return true if the group contains the event, false else
      */
-    public boolean contains(Event event) {
-        return events.contains(event);
+    public boolean contains(String id) {
+        for (Event e : events) {
+            if (e.getId().equals(id)) return true;
+        }
+        return false;
     }
 }
