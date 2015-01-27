@@ -119,7 +119,8 @@ public class DataFragment extends Fragment {
         calendarUrl += "?singleEvents=true";
         calendarUrl += "&orderBy=startTime";
         calendarUrl += "&timeZone=" + localTime.getTimeZone().getID();
-        calendarUrl += "&timeMin=" + buildMinTime(localTime);
+        calendarUrl += "&timeMin=" + buildMinTime((Calendar) localTime.clone());
+        calendarUrl += "&timeMax=" + buildMaxTime((Calendar) localTime.clone());
         calendarUrl += "&key=" + Config.GOOGLE_API_KEY;
 
         // Fetch Google calendar
@@ -127,14 +128,31 @@ public class DataFragment extends Fragment {
     }
 
     /**
-     * Builds a request string to fetch events from the day before the input day to whenever the
-     * list of entries ends.
+     * Builds a request string to fetch events beginning from the day before the input day
      * @param cal Reference day calendar
      * @return Request string
      */
     private String buildMinTime(Calendar cal) {
         // Include day before today
         cal.roll(Calendar.DAY_OF_MONTH, -1);
+
+        // Build string
+        String res = "";
+        res += cal.get(Calendar.YEAR);
+        res += "-" + String.format("%02d", cal.get(Calendar.MONTH) + 1); // Calendar counts from 0
+        res += "-" + String.format("%02d", cal.get(Calendar.DAY_OF_MONTH));
+        res += "T00:00:00.0z";
+        return res;
+    }
+
+    /**
+     * Builds a request string to fetch events up to two weeks ahead from the input day
+     * @param cal Reference day calendar
+     * @return Request string
+     */
+    private String buildMaxTime (Calendar cal) {
+        // Include up to two weeks ahead of now
+        cal.roll(Calendar.WEEK_OF_YEAR, 2);
 
         // Build string
         String res = "";
