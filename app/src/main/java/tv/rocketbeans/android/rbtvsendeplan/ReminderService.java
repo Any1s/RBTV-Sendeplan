@@ -162,15 +162,6 @@ public class ReminderService extends Service {
         }
     }
 
-    // TODO remove
-    private String printMap(HashMap<Event, Integer> map) {
-        String ret = "[";
-        for (Map.Entry<Event, Integer> entry : map.entrySet()) {
-            ret += " (" + entry.getKey().getId() + ", " + entry.getValue() + ")";
-        }
-        return ret += " ]";
-    }
-
     @Override
     public void onCreate() {
         // Restore counter as not to duplicate any alarm IDs
@@ -197,7 +188,6 @@ public class ReminderService extends Service {
         // Restore reminders on service restore
         if(!mRunning) {
             restoreBackup(false);
-            addDummyReminder();
         }
 
         // Get messenger from activity
@@ -297,23 +287,6 @@ public class ReminderService extends Service {
      * @param event The event to be reminded of
      */
     private void addReminder(Event event) {
-        Intent alarmIntent = new Intent(this, ReminderService.class);
-        alarmIntent.putExtra(EXTRA_ID, event.getId());
-        PendingIntent pendingAlarmIntent = PendingIntent.getService(this, alarmCounter,
-                alarmIntent, 0);
-
-        eventToIntentMap.put(event.getId(), alarmCounter++);
-        idToEventMap.put(event.getId(), event);
-
-        alarmManager.set(AlarmManager.RTC_WAKEUP, event.getStartDate().getTimeInMillis(),
-                pendingAlarmIntent);
-    }
-    private void addDummyReminder() {
-        Calendar start = Calendar.getInstance();
-        Calendar stop = Calendar.getInstance();
-        start.roll(Calendar.SECOND, 10);
-        stop.roll(Calendar.MINUTE, 1);
-        Event event = new Event(start, stop,"Dummy Event", Event.Type.RERUN, "dummyid");
         Intent alarmIntent = new Intent(this, ReminderService.class);
         alarmIntent.putExtra(EXTRA_ID, event.getId());
         PendingIntent pendingAlarmIntent = PendingIntent.getService(this, alarmCounter,
