@@ -1,5 +1,3 @@
-The software is licensed under:
-
 The MIT License (MIT)
 
 Copyright (c) 2015 Max Bachmann
@@ -22,8 +20,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-=============================================================================
-
-This repository includes a copy of the androidicons font which is licensed
-under CC-BY-SA (http://creativecommons.org/licenses/by-sa/4.0/), see
-https://github.com/opoloo/androidicons .

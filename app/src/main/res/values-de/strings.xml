@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RBTV Sendeplan</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="pref_led">LED</string>
+    <string name="pref_refresh">Sendeplan aktualisieren</string>
+    <string name="pref_refresh_time">Aktualisierungsintervall</string>
+    <string name="pref_refresh_time_10minutes">10 Minuten</string>
+    <string name="pref_refresh_time_120minutes">2 Stunden</string>
+    <string name="pref_refresh_time_15minutes">15 Minuten</string>
+    <string name="pref_refresh_time_30minutes">30 Minuten</string>
+    <string name="pref_refresh_time_5minutes">5 Minuten</string>
+    <string name="pref_refresh_time_60minutes">1 Stunde</string>
+    <string name="pref_led_summary">LED aufblinken lassen, wenn eine markierte Show startet</string>
+    <string name="pref_refresh_summary">Sendeplan automatisch nach einer Weile aktualisieren</string>
+    <string name="pref_vibrate">Vibration</string>
+    <string name="pref_vibrate_summary">Vibrieren, wenn eine markierte Show startet</string>
+    <string name="pref_wifi">Nur W-LAN</string>
+    <string name="pref_wifi_summ">Sendeplan nur über W-LAN herunderladen</string>
+    <string name="reminder_text">Läuft jetzt!</string>
+    <string name="title_activity_settings">Einstellungen</string>
+    <string name="wifi_not_connected">W-LAN nicht verbunden!</string>
+    <string name="action_reload">Neu laden</string>
+</resources>

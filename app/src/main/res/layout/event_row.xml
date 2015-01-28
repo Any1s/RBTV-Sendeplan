@@ -23,12 +23,14 @@
         android:layout_weight="1"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size"/>
-    <TextView
+    <ImageView
         android:id="@+id/event_reminder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/event_list_reminder_size"
+        android:layout_height="@dimen/event_list_reminder_size"
+        android:scaleType="fitCenter"
         android:paddingLeft="@dimen/event_list_reminder_padding_left"
-        android:textSize="@dimen/event_list_reminder_size"
-        android:text="@string/reminder_icon"/>
+        android:paddingBottom="0dp"
+        android:paddingRight="0dp"
+        android:paddingTop="0dp"/>
 
 </tv.rocketbeans.android.rbtvsendeplan.CheckableLinearLayout>

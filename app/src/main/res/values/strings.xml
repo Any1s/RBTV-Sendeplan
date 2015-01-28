@@ -5,8 +5,10 @@
     <string name="pref_wifi_key">pref_wifi</string>
     <string name="pref_vibrate_key">pref_vibrate</string>
     <string name="pref_led_key">pref_led</string>
+    <string name="pref_refresh_key">pref_refresh</string>
+    <string name="pref_refresh_time_key">pref_refresh_time</string>
 
-    <!-- On Screen -->
+    <!-- Localized Start -->
     <string name="app_name">RBTV Sendeplan</string>
     <string name="action_settings">Settings</string>
     <string name="action_reload">Reload</string>
@@ -17,10 +19,23 @@
     <string name="pref_vibrate_summary">Vibrate on alarm for upcoming show</string>
     <string name="pref_led">LED</string>
     <string name="pref_led_summary">Flash LED on alarm for upcoming show</string>
+    <string name="pref_refresh">Refresh schedule</string>
+    <string name="pref_refresh_summary">Refresh the schedule automatically after some time</string>
+    <string name="pref_refresh_time">Refresh period</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="reminder_text">Live now!</string>
+    <string name="reminder_text">Running now!</string>
+    <string name="pref_refresh_time_5minutes">5 minutes</string>
+    <string name="pref_refresh_time_10minutes">10 minutes</string>
+    <string name="pref_refresh_time_15minutes">15 minutes</string>
+    <string name="pref_refresh_time_30minutes">30 minutes</string>
+    <string name="pref_refresh_time_60minutes">1 hour</string>
+    <string name="pref_refresh_time_120minutes">2 hours</string>
+    <!-- Localized End -->
 
     <!-- Icons -->
     <string name="reminder_icon">&#59630;</string>
+
+    <!-- Preference values -->
+    <string name="pref_refresh_time_default">5</string>
 
 </resources>

@@ -2,8 +2,11 @@ package tv.rocketbeans.android.rbtvsendeplan;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -26,7 +29,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class DataFragment extends Fragment {
+public class DataFragment extends Fragment implements
+        SharedPreferences.OnSharedPreferenceChangeListener {
     /**
      * The Fragment's tag to be used by the {@link android.app.FragmentManager}
      */
@@ -58,11 +62,56 @@ public class DataFragment extends Fragment {
     private Activity activity;
 
     /**
+     * Preferences
+     */
+    private SharedPreferences preferences;
+
+    /**
+     * Indicates if the calendar schould be refreshed periodically
+     */
+    private boolean refreshPeriodically;
+
+    /**
+     * The calendar refresh period in minutes
+     */
+    private int refreshPeriod;
+
+    /**
+     * Handler for the automatic refresher
+     */
+    private Handler refreshHandler;
+
+    /**
+     * Indicates if the fragment is attached for the first time
+     */
+    private boolean firstAttach = true;
+
+    /**
+     * Used to refresh the calendar data periodically
+     */
+    private Runnable calendarRefresher = new Runnable() {
+        @Override
+        public void run() {
+            callbacks.refreshCalendarData();
+            refreshHandler.postDelayed(calendarRefresher, refreshPeriod * 60000);
+        }
+    };
+
+    /**
      * Classes using this fragment must implement this interface. It's functions will be called
      * by this class on certain events.
      */
     public interface Callbacks {
+        /**
+         * Called when the fragment has finished to load the requested data
+         * @param eventGroups The data that has been loaded
+         */
         public void onDataLoaded(SparseArray<EventGroup> eventGroups);
+
+        /**
+         * Called when the periodical refresh is due
+         */
+        public void refreshCalendarData();
     }
 
     @Override
@@ -71,6 +120,32 @@ public class DataFragment extends Fragment {
 
         // Do not destroy this fragment on configuration changes
         setRetainInstance(true);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (refreshPeriodically) {
+            stopRefreshingPeriodically();
+        }
+
+        // Unregister
+        preferences.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    /**
+     * Starts refreshing the calendar periodically
+     * @param delay Refreshing is started after this delay in milliseconds
+     */
+    private void startRefreshingPeriodically(long delay) {
+        refreshHandler.postDelayed(calendarRefresher, delay);
+    }
+
+    /**
+     * Stops the periodic refreshing of the calendar
+     */
+    private void stopRefreshingPeriodically() {
+        refreshHandler.removeCallbacks(calendarRefresher);
     }
 
     @Override
@@ -83,6 +158,28 @@ public class DataFragment extends Fragment {
             this.callbacks = (Callbacks) activity;
         } catch (ClassCastException e) {
             Log.e(TAG, "Activities using this fragment must implement it's Callbacks interface!");
+        }
+
+        if (firstAttach) {
+            firstAttach = false;
+            // Get Preferences
+            preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+
+            // Load configuration
+            refreshPeriodically = preferences.getBoolean(getString(R.string.pref_refresh_key), true);
+            refreshPeriod = Integer.parseInt(preferences.getString(
+                    getString(R.string.pref_refresh_time_key),
+                    getString(R.string.pref_refresh_time_default)));
+
+            // Register as change listener
+            preferences.registerOnSharedPreferenceChangeListener(this);
+
+            refreshHandler = new Handler();
+
+            // Refresh data periodically
+            if (refreshPeriodically) {
+                startRefreshingPeriodically(refreshPeriod);
+            }
         }
     }
 
@@ -278,6 +375,26 @@ public class DataFragment extends Fragment {
 
             // Loading has finished
             isLoading = false;
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(getString(R.string.pref_refresh_key))) {
+            // Start or stop refreshing depending on the new setting
+            refreshPeriodically = sharedPreferences.getBoolean(key, true);
+            if (refreshPeriodically) {
+                startRefreshingPeriodically(0);
+            } else {
+                stopRefreshingPeriodically();
+            }
+        } else if (key.equals(getString(R.string.pref_refresh_time_key))) {
+            // Restart refreshing with the new period
+            if (refreshPeriodically) {
+                refreshPeriod = Integer.parseInt(sharedPreferences.getString(key, "5"));
+                stopRefreshingPeriodically();
+                startRefreshingPeriodically(0);
+            }
         }
     }
 }

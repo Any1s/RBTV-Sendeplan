@@ -3,13 +3,15 @@ package tv.rocketbeans.android.rbtvsendeplan;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -23,7 +25,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     private LayoutInflater inflater;
     private Activity activity;
     private ReminderCallbacks callbacks;
-    private final Typeface iconFont;
+    private Drawable emptyDrawable = new ColorDrawable(Color.TRANSPARENT);
 
     /**
      * View Holder for the list entries, using the Holder Pattern.
@@ -32,7 +34,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         public TextView dateView;
         public TextView typeView;
         public TextView nameView;
-        public TextView reminderView;
+        public ImageView reminderView;
     }
 
     public interface ReminderCallbacks {
@@ -47,7 +49,6 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     public ExpandableEventListAdapter(Activity activity, SparseArray<EventGroup> eventGroups) {
         this.eventGroups = eventGroups;
         inflater = activity.getLayoutInflater();
-        iconFont = Typeface.createFromAsset(activity.getAssets(), "androidicons.ttf");
         this.activity = activity;
         callbacks = (ReminderCallbacks) activity;
     }
@@ -64,8 +65,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
             eventHolder.dateView = (TextView) rowView.findViewById(R.id.event_date);
             eventHolder.typeView = (TextView) rowView.findViewById(R.id.event_type);
             eventHolder.nameView = (TextView) rowView.findViewById(R.id.event_name);
-            eventHolder.reminderView = (TextView) rowView.findViewById(R.id.event_reminder);
-            eventHolder.reminderView.setTypeface(iconFont);
+            eventHolder.reminderView = (ImageView) rowView.findViewById(R.id.event_reminder);
             rowView.setTag(eventHolder);
         }
 
@@ -113,7 +113,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         eventHolder.dateView.setText(formatEventDate(event.getStartDate()));
         eventHolder.typeView.setText(indicator);
         eventHolder.nameView.setText(event.getTitle());
-        eventHolder.reminderView.setTextColor(getIconColor(event));
+        eventHolder.reminderView.setImageDrawable(getIconDrawable(event));
 
         return rowView;
     }
@@ -123,14 +123,14 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @param event The event corresponding to the icon in question
      * @return The color id
      */
-    private int getIconColor(Event event) {
+    private Drawable getIconDrawable(Event event) {
         if (event.isCurrentlyRunning() || isOver(event)) {
-            return activity.getResources().getColor(R.color.event_list_reminder_icon_hidden);
+            return emptyDrawable;
         }
         if (callbacks.hasReminder(event)) {
-            return activity.getResources().getColor(R.color.event_list_reminder_icon_enabled);
+            return activity.getResources().getDrawable(R.drawable.ic_action_social_notifications);
         }
-        return activity.getResources().getColor(R.color.event_list_reminder_icon_disabled);
+        return activity.getResources().getDrawable(R.drawable.ic_action_social_notifications_none);
     }
 
     /**

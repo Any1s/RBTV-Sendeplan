@@ -74,6 +74,11 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     private final Handler messageHandler = new MessageHandler();
 
     /**
+     * Preferences
+     */
+    private SharedPreferences preferences;
+
+    /**
      * Flag used to signal changed calendar data
      */
     private boolean dataChanged = false;
@@ -113,6 +118,9 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule);
 
+        // Get Preferences
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         // Data Fragment
         FragmentManager fm = getFragmentManager();
         dataFragment = (DataFragment) fm.findFragmentByTag(DataFragment.TAG);
@@ -122,8 +130,8 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         }
 
         // Check for cached data
-        if (dataFragment.getEventGroups() == null) { // TODO also reload after certain time since last time
-            loadCalendarData();
+        if (dataFragment.getEventGroups() == null) {
+            loadCalendarData(true);
         } else {
             onDataLoaded(dataFragment.getEventGroups());
         }
@@ -132,20 +140,20 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     @Override
     protected void onStart() {
         super.onStart();
+        // Start service to run autonomously and pass a messenger to receive messages from it
         Intent serviceIntent = new Intent(this, ReminderService.class);
         serviceIntent.putExtra(EXTRA_MESSENGER, new Messenger(messageHandler));
         getApplicationContext().startService(serviceIntent);
+
+        // Bin to the service to use the IBinder interface
         Intent bindIntent = new Intent(this, ReminderService.class);
         getApplicationContext().bindService(bindIntent, new ReminderConnection(), BIND_AUTO_CREATE);
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
     public void onDataLoaded(SparseArray<EventGroup> eventGroups) {
+
+        // ListView initialization
         if (listView == null) {
             listView = (ExpandableListView) findViewById(R.id.listView);
         }
@@ -186,7 +194,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
 
         switch (id) {
             case R.id.action_reload:
-                loadCalendarData();
+                loadCalendarData(false);
                 break;
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
@@ -199,16 +207,18 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
 
     /**
      * Loads calendar data if all constraints are met
+     * @param quiet True if the no error messages should be displayed
      */
-    private void loadCalendarData() {
+    public void loadCalendarData(boolean quiet) {
         // Check for WiFi constraint preference
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (preferences.getBoolean(getString(R.string.pref_wifi_key), false)) {
             ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
             NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (!wifi.isConnected()) {
-                Toast.makeText(this, getString(R.string.wifi_not_connected), Toast.LENGTH_LONG)
-                        .show();
+                if (!quiet) {
+                    Toast.makeText(this, getString(R.string.wifi_not_connected), Toast.LENGTH_LONG)
+                            .show();
+                }
                 return;
             }
         }
@@ -320,5 +330,10 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
             ((ExpandableEventListAdapter) listView.getExpandableListAdapter())
                     .notifyDataSetInvalidated();
         }
+    }
+
+    @Override
+    public void refreshCalendarData() {
+        loadCalendarData(true);
     }
 }
