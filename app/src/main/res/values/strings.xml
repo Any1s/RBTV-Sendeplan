@@ -2,11 +2,11 @@
 <resources>
 
     <!-- International -->
-    <string name="pref_wifi_key">pref_wifi</string>
-    <string name="pref_vibrate_key">pref_vibrate</string>
-    <string name="pref_led_key">pref_led</string>
-    <string name="pref_refresh_key">pref_refresh</string>
-    <string name="pref_refresh_time_key">pref_refresh_time</string>
+    <string name="pref_wifi_key" translatable="false">pref_wifi</string>
+    <string name="pref_vibrate_key" translatable="false">pref_vibrate</string>
+    <string name="pref_led_key" translatable="false">pref_led</string>
+    <string name="pref_refresh_key" translatable="false">pref_refresh</string>
+    <string name="pref_refresh_time_key" translatable="false">pref_refresh_time</string>
 
     <!-- Localized Start -->
     <string name="app_name">RBTV Sendeplan</string>
@@ -32,10 +32,7 @@
     <string name="pref_refresh_time_120minutes">2 hours</string>
     <!-- Localized End -->
 
-    <!-- Icons -->
-    <string name="reminder_icon">&#59630;</string>
-
     <!-- Preference values -->
-    <string name="pref_refresh_time_default">5</string>
+    <string name="pref_refresh_time_default" translatable="false">5</string>
 
 </resources>

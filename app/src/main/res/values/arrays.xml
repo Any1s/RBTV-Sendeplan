@@ -8,7 +8,7 @@
         <item>@string/pref_refresh_time_60minutes</item>
         <item>@string/pref_refresh_time_120minutes</item>
     </string-array>
-    <string-array name="pref_refresh_time_values">
+    <string-array name="pref_refresh_time_values" translatable="false">
         <item>5</item>
         <item>10</item>
         <item>15</item>
