@@ -342,7 +342,7 @@ public class ReminderService extends Service {
      * @param eventGroups new data
      */
     public void updateReminderDates(SparseArray<EventGroup> eventGroups) {
-        if (eventGroups == null) return;
+        if (eventGroups == null || eventGroups.size() < 1) return;
         boolean hasChanged = false;
         for (int i = 0; i < eventGroups.size(); i++) {
             // Check all events in each group

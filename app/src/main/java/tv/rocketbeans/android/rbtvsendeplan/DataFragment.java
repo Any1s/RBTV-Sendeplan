@@ -11,6 +11,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -231,7 +232,7 @@ public class DataFragment extends Fragment implements
      */
     private String buildMinTime(Calendar cal) {
         // Include day before today
-        cal.roll(Calendar.DAY_OF_MONTH, -1);
+        cal.roll(Calendar.DAY_OF_YEAR, -1);
 
         // Build string
         String res = "";
@@ -349,6 +350,8 @@ public class DataFragment extends Fragment implements
                     }
                 } else {
                     // TODO display download failed message?
+                    Toast.makeText(activity, getString(R.string.error_download_failed),
+                            Toast.LENGTH_SHORT).show();
                 }
             } catch (IOException e) {
                 e.printStackTrace();

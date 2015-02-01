@@ -30,6 +30,7 @@
     <string name="pref_refresh_time_30minutes">30 minutes</string>
     <string name="pref_refresh_time_60minutes">1 hour</string>
     <string name="pref_refresh_time_120minutes">2 hours</string>
+    <string name="error_download_failed">Error: Download failed</string>
     <!-- Localized End -->
 
     <!-- Preference values -->

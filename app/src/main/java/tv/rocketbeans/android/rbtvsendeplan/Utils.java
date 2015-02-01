@@ -36,6 +36,8 @@ public class Utils {
      * @return true if both calendars are on the same day, false else
      */
     public static boolean isSameDay(Calendar a, Calendar b) {
+        if (a == null || b == null) return false;
+
         return a.get(Calendar.YEAR) == b.get(Calendar.YEAR) &&
                 a.get(Calendar.MONTH) == b.get(Calendar.MONTH) &&
                 a.get(Calendar.DAY_OF_MONTH) == b.get(Calendar.DAY_OF_MONTH);
