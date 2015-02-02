@@ -24,6 +24,7 @@ import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -267,9 +268,21 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
             int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
             Event event = dataFragment.getEventGroups().get(groupPosition).getEvents()
                     .get(childPosition);
-            // The currently running event is selectable, so it has to be filtered here
+            // The currently running event is selectable, so it has to be filtered here as well as
+            // reminders that would be before the current time
+            int offsetMinutes = Integer.parseInt(preferences.getString(
+                    getString(R.string.pref_reminder_offset_key),
+                    getString(R.string.pref_reminder_offset_default)));
+            Calendar now = Calendar.getInstance();
+            Calendar startOffset = (Calendar) event.getStartDate().clone();
+            startOffset.add(Calendar.MINUTE, -1 * offsetMinutes);
             if(!event.isCurrentlyRunning()) {
-                toggleReminderState(event);
+                if (startOffset.compareTo(now) == 1) {
+                    toggleReminderState(event);
+                } else {
+                    Toast.makeText(this, getString(R.string.error_reminder_before_now),
+                            Toast.LENGTH_SHORT).show();
+                }
             } else {
                 openTwitchChannel();
             }

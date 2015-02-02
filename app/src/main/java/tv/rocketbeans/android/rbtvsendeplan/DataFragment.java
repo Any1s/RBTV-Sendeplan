@@ -259,7 +259,7 @@ public class DataFragment extends Fragment implements
      */
     private String buildMinTime(Calendar cal) {
         // Include day before today
-        cal.roll(Calendar.DAY_OF_YEAR, -1);
+        cal.add(Calendar.DAY_OF_YEAR, -1);
 
         // Build string
         String res = "";
@@ -277,7 +277,7 @@ public class DataFragment extends Fragment implements
      */
     private String buildMaxTime (Calendar cal) {
         // Include up to two weeks ahead of now
-        cal.roll(Calendar.WEEK_OF_YEAR, 2);
+        cal.add(Calendar.WEEK_OF_YEAR, 2);
 
         // Build string
         String res = "";

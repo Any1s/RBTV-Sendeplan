@@ -27,6 +27,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +39,8 @@ import java.util.concurrent.ArrayBlockingQueue;
  * to it by calling onBind() to ensure it stays running in the background, or else the mapping
  * is lost and reminders cannot be cancelled anymore.
  */
-public class ReminderService extends Service {
+public class ReminderService extends Service
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     /**
      * Flag indicating that a reminder status has changed
@@ -99,6 +101,11 @@ public class ReminderService extends Service {
      * Messenger used to communicate with the activity
      */
     private Messenger messageHandler;
+
+    /**
+     * Offset before the start time of events that is used to schedule reminders in milliseconds
+     */
+    private int reminderOffset;
 
     /**
      * Queue used to schedule event lists to be written to internal storage
@@ -164,6 +171,14 @@ public class ReminderService extends Service {
 
     @Override
     public void onCreate() {
+        // Load preferences
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        // Preferences are in minutes. Multiply by 60.000 to convert to milliseconds
+        reminderOffset = 60000 * Integer.parseInt(
+                preferences.getString(getString(R.string.pref_reminder_offset_key),
+                        getString(R.string.pref_reminder_offset_default)));
+        preferences.registerOnSharedPreferenceChangeListener(this);
+
         // Restore counter as not to duplicate any alarm IDs
         alarmCounter = PreferenceManager.getDefaultSharedPreferences(this)
                 .getInt(PREF_COUNTER, 0);
@@ -215,13 +230,15 @@ public class ReminderService extends Service {
     private void handleAlarm(String id) {
         // Notification
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         Intent intent = new Intent(this, ScheduleActivity.class);
         PendingIntent clickIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.abc_btn_radio_material) // TODO other icon
                 .setContentTitle(idToEventMap.get(id).getTitle())
-                .setContentText(getString(R.string.reminder_text))
+                .setContentText(String.format(getString(R.string.reminder_text),
+                        sdf.format(idToEventMap.get(id).getStartDate().getTime())))
                 .setContentIntent(clickIntent)
                 .setAutoCancel(true);
         if (pref.getBoolean(getString(R.string.pref_wifi_key), true)) {
@@ -295,7 +312,8 @@ public class ReminderService extends Service {
         eventToIntentMap.put(event.getId(), alarmCounter++);
         idToEventMap.put(event.getId(), event);
 
-        alarmManager.set(AlarmManager.RTC_WAKEUP, event.getStartDate().getTimeInMillis(),
+        alarmManager.set(AlarmManager.RTC_WAKEUP,
+                event.getStartDate().getTimeInMillis() - reminderOffset,
                 pendingAlarmIntent);
     }
 
@@ -475,6 +493,33 @@ public class ReminderService extends Service {
                 idToEventMap.put(entry.getKey().getId(), entry.getKey());
                 eventToIntentMap.put(entry.getKey().getId(), entry.getValue());
             }
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // Listen for reminder offset changes
+        if (key.equals(getString(R.string.pref_reminder_offset_key))) {
+            onOffsetChange(Integer.parseInt(sharedPreferences.getString(key,
+                    getString(R.string.pref_reminder_offset_default))) * 60000); // see onCreate()
+        }
+    }
+
+    /**
+     * Changes the offset of all scheduled reminders to the new value by removing and re-adding the
+     * reminders
+     * @param newOffset The new offset in milliseconds
+     */
+    private void onOffsetChange(int newOffset) {
+        if (reminderOffset == newOffset) return;
+
+        reminderOffset = newOffset;
+        Event[] events = new Event[idToEventMap.size()];
+        idToEventMap.values().toArray(events);
+        // Reset all reminders to incorporate the new offset
+        for (Event event : events) {
+            removeReminder(event);
+            addReminder(event);
         }
     }
 }

@@ -7,6 +7,7 @@
     <string name="pref_led_key" translatable="false">pref_led</string>
     <string name="pref_refresh_key" translatable="false">pref_refresh</string>
     <string name="pref_refresh_time_key" translatable="false">pref_refresh_time</string>
+    <string name="pref_reminder_offset_key" translatable="false">pref_reminder_offset</string>
 
     <!-- Localized Start -->
     <string name="app_name">RBTV Sendeplan</string>
@@ -22,19 +23,30 @@
     <string name="pref_refresh">Refresh schedule</string>
     <string name="pref_refresh_summary">Refresh the schedule automatically after some time</string>
     <string name="pref_refresh_time">Refresh period</string>
+    <string name="pref_reminder_offset">Remind before show start</string>
+    <string name="pref_reminder_offset_dialog">How much time before the start?</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="reminder_text">Running now!</string>
+    <string name="reminder_text">Running at %s</string> <!-- %s will be filled by the time -->
     <string name="pref_refresh_time_5minutes">5 minutes</string>
     <string name="pref_refresh_time_10minutes">10 minutes</string>
     <string name="pref_refresh_time_15minutes">15 minutes</string>
     <string name="pref_refresh_time_30minutes">30 minutes</string>
     <string name="pref_refresh_time_60minutes">1 hour</string>
     <string name="pref_refresh_time_120minutes">2 hours</string>
+    <string name="pref_reminder_offset_0minutes">Remind me at start time</string>
+    <string name="pref_reminder_offset_5minutes">5 minutes</string>
+    <string name="pref_reminder_offset_10minutes">10 minutes</string>
+    <string name="pref_reminder_offset_15minutes">15 minutes</string>
+    <string name="pref_reminder_offset_30minutes">30 minutes</string>
+    <string name="pref_reminder_offset_60minutes">1 hour</string>
+    <string name="pref_reminder_offset_120minutes">2 hours</string>
     <string name="error_download_failed">Error: Download failed</string>
     <string name="error_data_format">Error: Reading the calendar failed</string>
+    <string name="error_reminder_before_now">Reminder time is in the past. Please check your reminder time settings.</string>
     <!-- Localized End -->
 
     <!-- Preference values -->
     <string name="pref_refresh_time_default" translatable="false">5</string>
+    <string name="pref_reminder_offset_default" translatable="false">0</string>
 
 </resources>
