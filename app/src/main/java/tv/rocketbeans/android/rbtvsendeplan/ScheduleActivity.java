@@ -152,31 +152,38 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     }
 
     @Override
-    public void onDataLoaded(SparseArray<EventGroup> eventGroups) {
+    public void onDataLoaded(final SparseArray<EventGroup> eventGroups) {
 
-        // ListView initialization
-        if (listView == null) {
-            listView = (ExpandableListView) findViewById(R.id.listView);
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // ListView initialization
+                if (listView == null) {
+                    listView = (ExpandableListView) findViewById(R.id.listView);
+                }
 
-        listView.setAdapter(new ExpandableEventListAdapter(this, eventGroups));
+                listView.setAdapter(
+                        new ExpandableEventListAdapter(ScheduleActivity.this, eventGroups));
 
-        // Try to set the view to the expanded group containing events on the current day
-        int p = ((ExpandableEventListAdapter) listView.getExpandableListAdapter()).findTodayGroup();
-        if (p != -1) {
-            listView.expandGroup(p);
-            listView.setSelection(p);
-        }
+                // Try to set the view to the expanded group containing events on the current day
+                int p = ((ExpandableEventListAdapter) listView.getExpandableListAdapter())
+                        .findTodayGroup();
+                if (p != -1) {
+                    listView.expandGroup(p);
+                    listView.setSelection(p);
+                }
 
-        listView.setOnChildClickListener(this);
-        listView.setOnItemLongClickListener(this);
+                listView.setOnChildClickListener(ScheduleActivity.this);
+                listView.setOnItemLongClickListener(ScheduleActivity.this);
 
-        // Update reminder service data
-        if (reminderService == null) {
-            dataChanged = true;
-        } else {
-            reminderService.updateReminderDates(dataFragment.getEventGroups());
-        }
+                // Update reminder service data
+                if (reminderService == null) {
+                    dataChanged = true;
+                } else {
+                    reminderService.updateReminderDates(dataFragment.getEventGroups());
+                }
+            }
+        });
     }
 
     @Override

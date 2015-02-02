@@ -1,12 +1,15 @@
 package tv.rocketbeans.android.rbtvsendeplan;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
 
 /**
  * Data type for a group of {@link Event}s.
  */
-public class EventGroup {
+public class EventGroup implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Day of all contained events

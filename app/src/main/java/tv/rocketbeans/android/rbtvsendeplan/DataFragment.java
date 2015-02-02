@@ -2,6 +2,7 @@ package tv.rocketbeans.android.rbtvsendeplan;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,10 +24,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,9 +54,14 @@ public class DataFragment extends Fragment implements
     private static final String BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/h6tfehdpu3jrbcrn9sdju9ohj8@group.calendar.google.com/events";
 
     /**
+     * Filename for the local calendar copy
+     */
+    private static final String ON_DISK_FILE = "calendar.local";
+
+    /**
      * Grouped list of events
      */
-    private SparseArray<EventGroup> eventGroups;
+    private SerializableSparseArray<EventGroup> eventGroups;
 
     /**
      * The callbacks to be used on events
@@ -122,10 +137,58 @@ public class DataFragment extends Fragment implements
         public void refreshCalendarData();
     }
 
+    /**
+     * Writes the event groups to internal storage
+     */
+    private class FileWriter implements Runnable {
+
+        @Override
+        public void run() {
+            if (activity == null) return;
+
+            // Write
+            try {
+                FileOutputStream fo = activity.openFileOutput(ON_DISK_FILE, Context.MODE_PRIVATE);
+                BufferedOutputStream bo = new BufferedOutputStream(fo);
+                ObjectOutput oo = new ObjectOutputStream(bo);
+                oo.writeObject(eventGroups);
+                oo.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // Loading has finished
+            isLoading = false;
+        }
+    }
+
+    // Attempts to load the event groups from internal storage
+    private class FileLoader implements Runnable {
+
+        @Override
+        public void run() {
+            if (activity == null) return;
+
+            // Read
+            try {
+                FileInputStream fi = activity.openFileInput(ON_DISK_FILE);
+                BufferedInputStream bi = new BufferedInputStream(fi);
+                ObjectInput oi = new ObjectInputStream(bi);
+                eventGroups = (SerializableSparseArray<EventGroup>) oi.readObject();
+                oi.close();
+            } catch (FileNotFoundException e) {
+                // No backup in storage
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+
+            if (callbacks != null) callbacks.onDataLoaded(eventGroups);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Do not destroy this fragment on configuration changes
         setRetainInstance(true);
     }
@@ -173,6 +236,10 @@ public class DataFragment extends Fragment implements
             // user
 
             firstAttach = false;
+
+            // Restore local copy on first start
+            new Thread(new FileLoader()).start();
+
             // Get Preferences
             preferences = PreferenceManager.getDefaultSharedPreferences(activity);
 
@@ -218,7 +285,7 @@ public class DataFragment extends Fragment implements
         activity = null;
     }
 
-    public SparseArray<EventGroup> getEventGroups() {
+    public SerializableSparseArray<EventGroup> getEventGroups() {
         return eventGroups;
     }
 
@@ -295,8 +362,8 @@ public class DataFragment extends Fragment implements
      * @return An array containing the groups of events
      * @throws JSONException
      */
-    private SparseArray<EventGroup> groupEvents (JSONArray events) throws JSONException {
-        SparseArray<EventGroup> eventGroups = new SparseArray<>();
+    private SerializableSparseArray<EventGroup> groupEvents (JSONArray events) throws JSONException {
+        SerializableSparseArray<EventGroup> eventGroups = new SerializableSparseArray<>();
         Calendar curDate = null;
         ArrayList<Event> curList = null;
         int j = 0;
@@ -398,7 +465,7 @@ public class DataFragment extends Fragment implements
             try {
                 JSONObject json = new JSONObject(s);
                 JSONArray events = json.getJSONArray("items");
-                eventGroups = groupEvents(events);
+                setEventGroups(groupEvents(events));
                 if (callbacks != null) callbacks.onDataLoaded(eventGroups);
             } catch (JSONException e) {
                 Toast.makeText(activity, getString(R.string.error_data_format),
@@ -413,8 +480,8 @@ public class DataFragment extends Fragment implements
             // Remember the time
             refreshTimestamp = System.nanoTime();
 
-            // Loading has finished
-            isLoading = false;
+            // Write to storage
+            new Thread(new FileWriter()).start();
         }
     }
 
@@ -436,5 +503,9 @@ public class DataFragment extends Fragment implements
                 startRefreshingPeriodically(0);
             }
         }
+    }
+
+    private synchronized void setEventGroups(SerializableSparseArray<EventGroup> eventGroups) {
+        this.eventGroups = eventGroups;
     }
 }
