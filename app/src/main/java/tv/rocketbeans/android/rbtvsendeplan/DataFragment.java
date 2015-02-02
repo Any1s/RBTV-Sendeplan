@@ -182,7 +182,7 @@ public class DataFragment extends Fragment implements
                 e.printStackTrace();
             }
 
-            if (callbacks != null) callbacks.onDataLoaded(eventGroups);
+            if (callbacks != null && eventGroups != null) callbacks.onDataLoaded(eventGroups);
         }
     }
 
