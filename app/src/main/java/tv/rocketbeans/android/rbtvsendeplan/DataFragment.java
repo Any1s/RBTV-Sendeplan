@@ -27,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -40,7 +41,7 @@ public class DataFragment extends Fragment implements
     /**
      * The base request URL that is used to fetch the calendar
      */
-    private static final String BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/h6tfehdpu3jrbcrn9sdju9ohj8%40group.calendar.google.com/events";
+    private static final String BASE_URL = "https://www.googleapis.com/calendar/v3/calendars/h6tfehdpu3jrbcrn9sdju9ohj8@group.calendar.google.com/events";
 
     /**
      * Grouped list of events
@@ -76,6 +77,12 @@ public class DataFragment extends Fragment implements
      * The calendar refresh period in minutes
      */
     private int refreshPeriod;
+
+    /**
+     * Nano time of the last refresh
+     * @see System#nanoTime()
+     */
+    private long refreshTimestamp = 0;
 
     /**
      * Handler for the automatic refresher
@@ -162,6 +169,9 @@ public class DataFragment extends Fragment implements
         }
 
         if (firstAttach) {
+            // The first time this fragment is attached is the first time, the app is started by the
+            // user
+
             firstAttach = false;
             // Get Preferences
             preferences = PreferenceManager.getDefaultSharedPreferences(activity);
@@ -180,6 +190,23 @@ public class DataFragment extends Fragment implements
             // Refresh data periodically
             if (refreshPeriodically) {
                 startRefreshingPeriodically(refreshPeriod);
+            }
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!firstAttach) {
+            // The app has been started before
+            // If the configured period has elapsed without a reload, do it now
+            // 60.000.000.000 nanoseconds are one minute
+            if (refreshPeriodically
+                    && (refreshTimestamp < (System.nanoTime() - refreshPeriod * 60000000000L))) {
+                // Remove current timer and start with a fresh one to prevent multiple reloads
+                // within one refreshPeriod
+                stopRefreshingPeriodically();
+                startRefreshingPeriodically(0);
             }
         }
     }
@@ -330,12 +357,12 @@ public class DataFragment extends Fragment implements
      * Downloads the calendar as json via the Google Calendar API, groups the entries by day and
      * passes the result to the callback.
      */
-    private class CalendarDownloadTask extends AsyncTask<String, Void, String> {
+    private class CalendarDownloadTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... params) {
             StringBuilder builder = new StringBuilder();
             HttpClient client = new DefaultHttpClient();
-            HttpGet httpGet = new HttpGet(params[0]);
+            HttpGet httpGet = new HttpGet(URI.create(params[0]));
             try {
                 HttpResponse response = client.execute(httpGet);
                 StatusLine statusLine = response.getStatusLine();
@@ -349,14 +376,21 @@ public class DataFragment extends Fragment implements
                         builder.append(line);
                     }
                 } else {
-                    // TODO display download failed message?
-                    Toast.makeText(activity, getString(R.string.error_download_failed),
-                            Toast.LENGTH_SHORT).show();
+                    publishProgress(getString(R.string.error_download_failed));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                publishProgress(getString(R.string.error_download_failed));
             }
             return builder.toString();
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            if (values != null) {
+                for(String v : values) {
+                    Toast.makeText(activity, v, Toast.LENGTH_SHORT).show();
+                }
+            }
         }
 
         @Override
@@ -367,14 +401,17 @@ public class DataFragment extends Fragment implements
                 eventGroups = groupEvents(events);
                 if (callbacks != null) callbacks.onDataLoaded(eventGroups);
             } catch (JSONException e) {
-                // TODO
-                e.printStackTrace();
+                Toast.makeText(activity, getString(R.string.error_data_format),
+                        Toast.LENGTH_SHORT).show();
             }
 
             // Hide download indicator
             if (activity != null) {
                 activity.findViewById(R.id.download_indicator).setVisibility(View.GONE);
             }
+
+            // Remember the time
+            refreshTimestamp = System.nanoTime();
 
             // Loading has finished
             isLoading = false;

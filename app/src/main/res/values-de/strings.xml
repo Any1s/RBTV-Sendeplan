@@ -22,4 +22,5 @@
     <string name="wifi_not_connected">W-LAN nicht verbunden!</string>
     <string name="action_reload">Neu laden</string>
     <string name="error_download_failed">Fehler: Download fehlgeschlagen</string>
+    <string name="error_data_format">Fehler: Kalender einlesen fehlgeschlagen</string>
 </resources>
