@@ -8,8 +8,8 @@
     <color name="default_background_selected">#b3b3b3</color>
     <color name="running_background">#fff79f</color>
     <color name="running_background_selected">#fff79f</color>
-    <color name="event_list_group_expanded_background">#cccccc</color>
-    <color name="event_list_group_collapsed_background">#dddddd</color>
+    <color name="event_list_group_expanded_background">#e8e8e8</color>
+    <color name="event_list_group_collapsed_background">#cccccc</color>
     <color name="event_list_reminder_icon_hidden">#00ffffff</color>
     <color name="event_list_reminder_icon_disabled">#11000000</color>
     <color name="event_list_reminder_icon_enabled">#000000</color>
