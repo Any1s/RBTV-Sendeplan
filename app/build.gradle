@@ -8,8 +8,8 @@ android {
         applicationId "tv.rocketbeans.android.rbtvsendeplan"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 8
-        versionName "0.4"
+        versionCode 9
+        versionName "0.5"
     }
     buildTypes {
         release {
