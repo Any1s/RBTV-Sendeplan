@@ -12,5 +12,5 @@
     <color name="event_list_reminder_icon_disabled">#11000000</color>
     <color name="event_list_reminder_icon_enabled">#000000</color>
     <color name="running_indicator">#0d9900</color>
-    <color name="action_bar_background">#ff0000</color>
+    <color name="action_bar_background">#c80000</color>
 </resources>
