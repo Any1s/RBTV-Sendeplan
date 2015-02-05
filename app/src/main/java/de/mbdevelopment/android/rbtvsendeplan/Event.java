@@ -1,4 +1,4 @@
-package tv.rocketbeans.android.rbtvsendeplan;
+package de.mbdevelopment.android.rbtvsendeplan;
 
 import java.io.Serializable;
 import java.util.Calendar;

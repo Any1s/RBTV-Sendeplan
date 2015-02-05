@@ -1,4 +1,4 @@
-package tv.rocketbeans.android.rbtvsendeplan;
+package de.mbdevelopment.android.rbtvsendeplan;
 
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBar;

@@ -1,4 +1,4 @@
-package tv.rocketbeans.android.rbtvsendeplan;
+package de.mbdevelopment.android.rbtvsendeplan;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

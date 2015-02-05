@@ -1,4 +1,4 @@
-package tv.rocketbeans.android.rbtvsendeplan;
+package de.mbdevelopment.android.rbtvsendeplan;
 
 import android.app.Activity;
 import android.content.res.Resources;

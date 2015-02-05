@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tv.rocketbeans.android.rbtvsendeplan.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<de.mbdevelopment.android.rbtvsendeplan.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:orientation="horizontal" android:paddingLeft="@dimen/event_list_group_padding_left"
     android:paddingRight="@dimen/event_list_group_padding_right"
@@ -18,4 +18,4 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/group_text_size" />
 
-</tv.rocketbeans.android.rbtvsendeplan.CheckableLinearLayout>
+</de.mbdevelopment.android.rbtvsendeplan.CheckableLinearLayout>

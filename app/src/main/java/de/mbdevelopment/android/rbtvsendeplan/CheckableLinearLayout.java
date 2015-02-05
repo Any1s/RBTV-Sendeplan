@@ -1,4 +1,4 @@
-package tv.rocketbeans.android.rbtvsendeplan;
+package de.mbdevelopment.android.rbtvsendeplan;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

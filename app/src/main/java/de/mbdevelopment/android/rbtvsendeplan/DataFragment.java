@@ -1,4 +1,4 @@
-package tv.rocketbeans.android.rbtvsendeplan;
+package de.mbdevelopment.android.rbtvsendeplan;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -394,7 +394,7 @@ public class DataFragment extends Fragment implements
     /**
      * Parses the summary into type (new, live, rerun) and title.
      * @param summary The 'summary' field from the Google Calendar
-     * @return {@link android.util.Pair} of {@link tv.rocketbeans.android.rbtvsendeplan.Event.Type}
+     * @return {@link android.util.Pair} of {@link de.mbdevelopment.android.rbtvsendeplan.Event.Type}
      * and title
      */
     private Pair<Event.Type, String> processSummary(String summary) {

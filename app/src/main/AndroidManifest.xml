@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="tv.rocketbeans.android.rbtvsendeplan" >
+    package="de.mbdevelopment.android.rbtvsendeplan" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".ScheduleActivity"
+            android:name="de.mbdevelopment.android.rbtvsendeplan.ScheduleActivity"
             android:launchMode="singleTask"
             android:label="@string/app_name" >
             <intent-filter>
@@ -22,13 +22,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:parentActivityName=".ScheduleActivity"
+            android:name="de.mbdevelopment.android.rbtvsendeplan.SettingsActivity"
+            android:parentActivityName="de.mbdevelopment.android.rbtvsendeplan.ScheduleActivity"
             android:label="@string/title_activity_settings" >
         </activity>
-        <service android:name=".ReminderService"
+        <service android:name="de.mbdevelopment.android.rbtvsendeplan.ReminderService"
             android:exported="false" />
-        <receiver android:name=".DeviceBootedReceiver" >
+        <receiver android:name="de.mbdevelopment.android.rbtvsendeplan.DeviceBootedReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
