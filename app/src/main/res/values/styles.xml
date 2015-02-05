@@ -3,6 +3,15 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
+        <item name="android:actionBarStyle">@style/RBTVActionBar</item>
+    </style>
+
+    <!-- Action bar styles -->
+    <style name="RBTVActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/action_bar_background</item>
+
+        <!-- Support library compatibility -->
+        <item name="background">@color/action_bar_background</item>
     </style>
 
 </resources>

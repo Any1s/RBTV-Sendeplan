@@ -3,9 +3,13 @@ package tv.rocketbeans.android.rbtvsendeplan;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +36,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      */
     private class EventHolder {
         public TextView dateView;
-        public TextView typeView;
+        public ImageView typeView;
         public TextView nameView;
         public ImageView reminderView;
     }
@@ -63,7 +67,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
             rowView = inflater.inflate(R.layout.event_row, parent, false);
             EventHolder eventHolder = new EventHolder();
             eventHolder.dateView = (TextView) rowView.findViewById(R.id.event_date);
-            eventHolder.typeView = (TextView) rowView.findViewById(R.id.event_type);
+            eventHolder.typeView = (ImageView) rowView.findViewById(R.id.event_type);
             eventHolder.nameView = (TextView) rowView.findViewById(R.id.event_name);
             eventHolder.reminderView = (ImageView) rowView.findViewById(R.id.event_reminder);
             rowView.setTag(eventHolder);
@@ -72,47 +76,50 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         EventHolder eventHolder = (EventHolder) rowView.getTag();
 
         Event event = eventGroups.get(groupPosition).getEvents().get(childPosition);
-        String indicator = "";
-        boolean currentlyRunning = event.isCurrentlyRunning();
+        Drawable indicator = null;
 
         // Type colors for the whole row
         Resources resources = rowView.getResources();
         StateListDrawable stateList = new StateListDrawable();
         if (event.getType().equals(Event.Type.NEW)) {
             stateList.addState(new int[] {android.R.attr.state_pressed},
-                    resources.getDrawable(currentlyRunning ? R.color.running_background_selected
-                            : R.color.new_background_selected));
+                    resources.getDrawable(R.color.new_background_selected));
             stateList.addState(new int[]{}, resources.getDrawable(R.color.new_background));
-            indicator = "[N]";
+            indicator = resources.getDrawable(R.drawable.ic_new);
         } else if (event.getType().equals(Event.Type.LIVE)) {
             stateList.addState(new int[] {android.R.attr.state_pressed},
-                    resources.getDrawable(currentlyRunning ? R.color.running_background_selected
-                            : R.color.live_background_selected));
+                    resources.getDrawable(R.color.live_background_selected));
             stateList.addState(new int[]{}, resources.getDrawable(R.color.live_background));
-            indicator = "[L]";
+            indicator = resources.getDrawable(R.drawable.ic_live);
         } else {
             stateList.addState(new int[] {android.R.attr.state_pressed},
-                    resources.getDrawable(currentlyRunning ? R.color.running_background_selected
-                            : R.color.default_background_selected));
+                    resources.getDrawable(R.color.default_background_selected));
             stateList.addState(new int[]{}, resources.getDrawable(R.color.default_background));
+            indicator = resources.getDrawable(R.drawable.ic_rerun);
         }
 
         // Commit background colors
         rowView.setBackgroundDrawable(stateList);
 
         // Indicate the currently running
-        if (currentlyRunning) {
-            eventHolder.nameView.setBackgroundColor(rowView.getResources()
-                    .getColor(R.color.running_background));
-        } else {
-            // Make sure holder objects previously used for a running entry are reset
-            eventHolder.nameView.setBackgroundColor(Color.TRANSPARENT);
+        SpannableString runningIndicator = null;
+        if (event.isCurrentlyRunning()) {
+            runningIndicator = new SpannableString("   " +
+                    resources.getString(R.string.running_indicator));
+            runningIndicator.setSpan(new ForegroundColorSpan(
+                            resources.getColor(R.color.running_indicator)),
+                    3, runningIndicator.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+            runningIndicator.setSpan(new StyleSpan(Typeface.BOLD), 0, runningIndicator.length(),
+                    SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         // Set data
         eventHolder.dateView.setText(formatEventDate(event.getStartDate()));
-        eventHolder.typeView.setText(indicator);
+        eventHolder.typeView.setImageDrawable(indicator);
         eventHolder.nameView.setText(event.getTitle());
+        if (runningIndicator != null) {
+            eventHolder.nameView.append(runningIndicator);
+        }
         eventHolder.reminderView.setImageDrawable(getIconDrawable(event));
 
         return rowView;

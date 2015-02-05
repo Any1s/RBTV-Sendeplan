@@ -43,6 +43,7 @@
     <string name="error_download_failed">Error: Download failed</string>
     <string name="error_data_format">Error: Reading the calendar failed</string>
     <string name="error_reminder_before_now">Reminder time is in the past. Please check your reminder time settings.</string>
+    <string name="running_indicator">Running now!</string>
     <!-- Localized End -->
 
     <!-- Preference values -->

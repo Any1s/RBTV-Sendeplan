@@ -33,4 +33,5 @@
     <string name="pref_reminder_offset_0minutes">Beim Sendestart erinnern</string>
     <string name="reminder_text">Läuft um %s</string>
     <string name="error_reminder_before_now">Zeitpunkt für Erinnerung liegt in der Vergangenheit. Bitte Einstellungen für Erinnerungszeit prüfen.</string>
+    <string name="running_indicator">Läuft jetzt!</string>
 </resources>

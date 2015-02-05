@@ -5,6 +5,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -13,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.SparseArray;
@@ -118,6 +120,10 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule);
+        // TODO workaround
+        ActionBar ab = getSupportActionBar();
+        if (ab != null) ab.setBackgroundDrawable(
+                new ColorDrawable(getResources().getColor(R.color.action_bar_background)));
 
         // Get Preferences
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
