@@ -172,11 +172,15 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
                         new ExpandableEventListAdapter(ScheduleActivity.this, eventGroups));
 
                 // Try to set the view to the expanded group containing events on the current day
-                int p = ((ExpandableEventListAdapter) listView.getExpandableListAdapter())
-                        .findTodayGroup();
-                if (p != -1) {
-                    listView.expandGroup(p);
-                    listView.setSelection(p);
+                int[] p = ((ExpandableEventListAdapter) listView.getExpandableListAdapter())
+                        .findCurrentEvent();
+                if (p[0] != -1) {
+                    listView.expandGroup(p[0]);
+                    if (p[1] != -1) {
+                        listView.setSelectedChild(p[0], p[1], true);
+                    } else {
+                        listView.setSelection(p[0]);
+                    }
                 }
 
                 listView.setOnChildClickListener(ScheduleActivity.this);

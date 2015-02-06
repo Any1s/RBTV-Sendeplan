@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Adapter to provide data for an {@link android.widget.ExpandableListView}.
@@ -227,16 +228,41 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     }
 
     /**
-     * Tries to find the day corresponding to the current day
-     * @return The group id if a corresponding group is found, -1 else
+     * Tries to find the currently running event or one close to the current time
+     * @return An array of two elements. The first element is the group position or -1 if none is
+     * found. The second element s the child position or -1 if none is fond.
      */
-    public int findTodayGroup() {
+    public int[] findCurrentEvent() {
+        int[] pos = {-1, -1};
         Calendar today = Calendar.getInstance();
         for (int i = 0; i < eventGroups.size(); i++) {
             if (Utils.isSameDay(eventGroups.get(i).getDate(), today)) {
-                return i;
+                pos[0] = i;
+                break;
             }
         }
-        return -1;
+
+        if (pos[0] != -1) {
+            // Day has been found. Look for a running event and return it's position. If no running
+            // event is found, return the last event before the current time
+            List<Event> currentGroup = eventGroups.get(pos[0]).getEvents();
+            Event currentEvent;
+            for (int i = 0; i < currentGroup.size(); i++) {
+                currentEvent = currentGroup.get(i);
+                if (currentEvent.getStartDate().compareTo(today) == 1) {
+                    // No running event found since we have reached a future event
+                    pos[1] = i - 1;
+                    break;
+                }
+                if ((currentEvent.getStartDate().compareTo(today) == -1
+                        || currentEvent.getStartDate().compareTo(today) == 0)
+                        && currentEvent.getEndDate().compareTo(today) == 1) {
+                    // Running event found
+                    pos[1] = i;
+                    break;
+                }
+            }
+        }
+        return pos;
     }
 }
