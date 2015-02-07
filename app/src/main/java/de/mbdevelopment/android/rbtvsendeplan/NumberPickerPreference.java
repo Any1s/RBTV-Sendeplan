@@ -154,4 +154,8 @@ public class NumberPickerPreference extends DialogPreference {
         // Set this Preference's widget to reflect the restored state
         numberPicker.setValue(savedState.value);
     }
+
+    public int getEntry() {
+        return currentValue;
+    }
 }

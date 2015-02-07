@@ -28,4 +28,6 @@
     <string name="error_reminder_before_now">Zeitpunkt für Erinnerung liegt in der Vergangenheit. Bitte Einstellungen für Erinnerungszeit prüfen.</string>
     <string name="running_indicator">Läuft jetzt!</string>
     <string name="pref_reminder_offset_picker_hint">Minuten</string>
+    <string name="pref_reminder_offset_summary">%d Minuten vor Sendungsstart erinnern</string>
+    <string name="pref_refresh_time_summary">Aktualisiere alle %s</string>
 </resources>
