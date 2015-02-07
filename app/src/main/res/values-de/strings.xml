@@ -23,15 +23,9 @@
     <string name="error_download_failed">Fehler: Download fehlgeschlagen</string>
     <string name="error_data_format">Fehler: Kalender einlesen fehlgeschlagen</string>
     <string name="pref_reminder_offset">Vor Sendestart erinnern</string>
-    <string name="pref_reminder_offset_10minutes">10 Minuten</string>
-    <string name="pref_reminder_offset_120minutes">2 Stunden</string>
-    <string name="pref_reminder_offset_15minutes">15 Minuten</string>
-    <string name="pref_reminder_offset_30minutes">30 Minuten</string>
-    <string name="pref_reminder_offset_5minutes">5 Minuten</string>
-    <string name="pref_reminder_offset_60minutes">1 Stunde</string>
     <string name="pref_reminder_offset_dialog">Wie weit vor dem Start?</string>
-    <string name="pref_reminder_offset_0minutes">Beim Sendestart erinnern</string>
     <string name="reminder_text">Läuft um %s</string>
     <string name="error_reminder_before_now">Zeitpunkt für Erinnerung liegt in der Vergangenheit. Bitte Einstellungen für Erinnerungszeit prüfen.</string>
     <string name="running_indicator">Läuft jetzt!</string>
+    <string name="pref_reminder_offset_picker_hint">Minuten</string>
 </resources>

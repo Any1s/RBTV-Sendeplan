@@ -23,4 +23,5 @@
     <dimen name="event_list_type_padding_right">5dp</dimen>
     <dimen name="event_list_type_margin_left">4dp</dimen>
     <dimen name="group_text_size">24sp</dimen>
+    <dimen name="pref_reminder_offset_picker_hint_text_size">16sp</dimen>
 </resources>

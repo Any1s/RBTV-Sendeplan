@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="pref_reminder_offset_default">0</integer>
+    <integer name="pref_reminder_offset_min">0</integer>
+    <integer name="pref_reminder_offset_max">120</integer>
+</resources>

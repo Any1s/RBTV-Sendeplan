@@ -5,13 +5,13 @@
         android:title="@string/pref_wifi"
         android:summary="@string/pref_wifi_summ"
         android:defaultValue="true" />
-    <ListPreference
+    <de.mbdevelopment.android.rbtvsendeplan.NumberPickerPreference
         android:key="@string/pref_reminder_offset_key"
         android:title="@string/pref_reminder_offset"
         android:dialogTitle="@string/pref_reminder_offset_dialog"
-        android:entries="@array/pref_reminder_offset_entries"
-        android:entryValues="@array/pref_reminder_offset_values"
-        android:defaultValue="@string/pref_reminder_offset_default" />
+        android:inputType="number"
+        android:defaultValue="@string/pref_reminder_offset_default"
+        android:persistent="true"/>
     <CheckBoxPreference
         android:key="@string/pref_vibrate_key"
         android:title="@string/pref_vibrate"

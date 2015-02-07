@@ -33,13 +33,7 @@
     <string name="pref_refresh_time_30minutes">30 minutes</string>
     <string name="pref_refresh_time_60minutes">1 hour</string>
     <string name="pref_refresh_time_120minutes">2 hours</string>
-    <string name="pref_reminder_offset_0minutes">Remind me at start time</string>
-    <string name="pref_reminder_offset_5minutes">5 minutes</string>
-    <string name="pref_reminder_offset_10minutes">10 minutes</string>
-    <string name="pref_reminder_offset_15minutes">15 minutes</string>
-    <string name="pref_reminder_offset_30minutes">30 minutes</string>
-    <string name="pref_reminder_offset_60minutes">1 hour</string>
-    <string name="pref_reminder_offset_120minutes">2 hours</string>
+    <string name="pref_reminder_offset_picker_hint">minutes</string>
     <string name="error_download_failed">Error: Download failed</string>
     <string name="error_data_format">Error: Reading the calendar failed</string>
     <string name="error_reminder_before_now">Reminder time is in the past. Please check your reminder time settings.</string>
