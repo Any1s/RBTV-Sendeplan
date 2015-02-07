@@ -42,6 +42,14 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         public ImageView reminderView;
     }
 
+    /**
+     * View Holder for the group entries, using the Holder Pattern.
+     */
+    private class GroupHolder {
+        public TextView indicatorView;
+        public TextView groupView;
+    }
+
     public interface ReminderCallbacks {
         public boolean hasReminder(Event event);
     }
@@ -174,15 +182,24 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
                              ViewGroup parent) {
-        CheckableLinearLayout rowView = (CheckableLinearLayout) inflater
-                .inflate(R.layout.event_group_row, parent, false);
+        View rowView = convertView;
+
+        // View Holder pattern
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.event_group_row, parent, false);
+            GroupHolder groupHolder = new GroupHolder();
+            groupHolder.indicatorView = (TextView) rowView.findViewById(R.id.event_group_indicator);
+            groupHolder.groupView = (TextView) rowView.findViewById(R.id.event_group);
+            rowView.setTag(groupHolder);
+        }
+
+        GroupHolder groupHolder = (GroupHolder) rowView.getTag();
+        // Set data
         rowView.setBackgroundColor(isExpanded
                 ? parent.getResources().getColor(R.color.event_list_group_expanded_background)
                 : parent.getResources().getColor(R.color.event_list_group_collapsed_background));
-        TextView indicatorView = (TextView) rowView.findViewById(R.id.event_group_indicator);
-        TextView groupView = (TextView) rowView.findViewById(R.id.event_group);
-        indicatorView.setText(isExpanded ? "\u25BC" : "\u25B6");
-        groupView.setText(formatGroupDate(eventGroups.get(groupPosition).getDate()));
+        groupHolder.indicatorView.setText(isExpanded ? "\u25BC" : "\u25B6");
+        groupHolder.groupView.setText(formatGroupDate(eventGroups.get(groupPosition).getDate()));
 
         return rowView;
     }
