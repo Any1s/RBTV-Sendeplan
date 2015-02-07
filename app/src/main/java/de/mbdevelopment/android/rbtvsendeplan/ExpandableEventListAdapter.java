@@ -46,7 +46,6 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * View Holder for the group entries, using the Holder Pattern.
      */
     private class GroupHolder {
-        public TextView indicatorView;
         public TextView groupView;
     }
 
@@ -188,7 +187,6 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         if (rowView == null) {
             rowView = inflater.inflate(R.layout.event_group_row, parent, false);
             GroupHolder groupHolder = new GroupHolder();
-            groupHolder.indicatorView = (TextView) rowView.findViewById(R.id.event_group_indicator);
             groupHolder.groupView = (TextView) rowView.findViewById(R.id.event_group);
             rowView.setTag(groupHolder);
         }
@@ -198,7 +196,6 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         rowView.setBackgroundColor(isExpanded
                 ? parent.getResources().getColor(R.color.event_list_group_expanded_background)
                 : parent.getResources().getColor(R.color.event_list_group_collapsed_background));
-        groupHolder.indicatorView.setText(isExpanded ? "\u25BC" : "\u25B6");
         groupHolder.groupView.setText(formatGroupDate(eventGroups.get(groupPosition).getDate()));
 
         return rowView;

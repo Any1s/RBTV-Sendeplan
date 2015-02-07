@@ -7,7 +7,7 @@
     <dimen name="event_list_padding_right">10dp</dimen>
     <dimen name="event_list_padding_top">3dp</dimen>
     <dimen name="event_list_padding_bottom">3dp</dimen>
-    <dimen name="event_list_group_padding_left">10dp</dimen>
+    <dimen name="event_list_group_padding_left">26dp</dimen>
     <dimen name="event_list_group_padding_right">10dp</dimen>
     <dimen name="event_list_group_padding_top">5dp</dimen>
     <dimen name="event_list_group_padding_bottom">5dp</dimen>
