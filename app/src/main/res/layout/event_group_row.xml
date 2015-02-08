@@ -10,6 +10,7 @@
         android:id="@+id/event_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/group_text_size" />
+        android:textSize="@dimen/group_text_size"
+        android:textColor="@color/event_list_group_text"/>
 
 </de.mbdevelopment.android.rbtvsendeplan.CheckableLinearLayout>

@@ -11,6 +11,9 @@
     <color name="event_list_reminder_icon_hidden">#00ffffff</color>
     <color name="event_list_reminder_icon_disabled">#11000000</color>
     <color name="event_list_reminder_icon_enabled">#000000</color>
+    <color name="event_list_group_text">#E65e5e5e</color>
+    <color name="event_list_child_text">#E65e5e5e</color>
     <color name="running_indicator">#0d9900</color>
     <color name="action_bar_background">#c80000</color>
+    <color name="action_bar_text">#ffffff</color>
 </resources>

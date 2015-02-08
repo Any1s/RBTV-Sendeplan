@@ -13,6 +13,14 @@
 
         <!-- Support library compatibility -->
         <item name="background">@color/action_bar_background</item>
+
+        <item name="android:titleTextStyle">@style/RBTVTitleTextStyle</item>
+        <item name="titleTextStyle">@style/RBTVTitleTextStyle</item>
+    </style>
+
+    <!-- Title text styles -->
+    <style name="RBTVTitleTextStyle" parent="@style/Base.TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+        <item name="android:textColor">@color/action_bar_text</item>
     </style>
 
 </resources>

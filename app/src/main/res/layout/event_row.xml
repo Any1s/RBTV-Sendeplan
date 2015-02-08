@@ -12,6 +12,7 @@
         android:layout_width="@dimen/event_list_date_width"
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size"
+        android:textColor="@color/event_list_child_text"
         android:gravity="right|top"/>
     <ImageView
         android:id="@+id/event_type"
@@ -28,7 +29,8 @@
         android:layout_weight="1"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/event_list_title_margin_left"
-        android:textSize="@dimen/text_size"/>
+        android:textSize="@dimen/text_size"
+        android:textColor="@color/event_list_child_text"/>
     <ImageView
         android:id="@+id/event_reminder"
         android:layout_width="@dimen/event_list_reminder_size"
