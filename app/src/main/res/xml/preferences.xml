@@ -23,6 +23,11 @@
         android:summary="@string/pref_led_summary"
         android:defaultValue="true"/>
     <CheckBoxPreference
+        android:key="@string/pref_sound_key"
+        android:title="@string/pref_sound"
+        android:summary="@string/pref_sound_summary"
+        android:defaultValue="true"/>
+    <CheckBoxPreference
         android:key="@string/pref_refresh_key"
         android:title="@string/pref_refresh"
         android:summary="@string/pref_refresh_summary"

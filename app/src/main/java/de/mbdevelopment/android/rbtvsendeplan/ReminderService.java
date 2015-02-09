@@ -247,7 +247,9 @@ public class ReminderService extends Service
         if (pref.getBoolean(getString(R.string.pref_led_key), true)) {
             builder.setLights(Color.RED, 3000, 3000);
         }
-        // TODO Audio notification
+        if (pref.getBoolean(getString(R.string.pref_sound_key), true)) {
+            builder.setDefaults(NotificationCompat.DEFAULT_SOUND);
+        }
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         // There should always be only one show running at a time, so we can use a single ID
