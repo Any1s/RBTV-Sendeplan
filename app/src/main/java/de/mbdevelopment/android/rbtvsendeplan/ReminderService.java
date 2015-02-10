@@ -241,7 +241,7 @@ public class ReminderService extends Service
                         sdf.format(idToEventMap.get(id).getStartDate().getTime())))
                 .setContentIntent(clickIntent)
                 .setAutoCancel(true);
-        if (pref.getBoolean(getString(R.string.pref_wifi_key), true)) {
+        if (pref.getBoolean(getString(R.string.pref_vibrate_key), true)) {
             builder.setVibrate(new long[] {0, 500, 500, 500});
         }
         if (pref.getBoolean(getString(R.string.pref_led_key), true)) {
