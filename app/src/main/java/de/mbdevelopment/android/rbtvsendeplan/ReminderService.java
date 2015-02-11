@@ -28,9 +28,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -50,7 +52,12 @@ public class ReminderService extends Service
     /**
      * Filename for the backup of the list of events with reminders
      */
-    private static final String BACKUP_FILENAME = "evens.bak";
+    private static final String BACKUP_EVENTS_FILENAME = "evens.bak";
+
+    /**
+     * Filename for the backup of the recurring events with reminders for all instances
+     */
+    private static final String BACKUP_RECURRING_FILENAME = "recurring.bak";
 
     /**
      * Identifier string for the event id in {@link Intent} extras
@@ -83,6 +90,11 @@ public class ReminderService extends Service
     private Map<String, Event> idToEventMap = new HashMap<>();
 
     /**
+     * List of the recurringEventIds for which reminders are set for all instances of the event
+     */
+    private List<String> recurringReminders = new ArrayList<>();
+
+    /**
      * Binder given to clients on bind
      */
     private final ServiceBinder mBinder = new ServiceBinder();
@@ -110,8 +122,7 @@ public class ReminderService extends Service
     /**
      * Queue used to schedule event lists to be written to internal storage
      */
-    protected ArrayBlockingQueue<HashMap<Event, Integer>> writeQueue =
-            new ArrayBlockingQueue<>(10);
+    protected ArrayBlockingQueue<BackupQueueElement> writeQueue = new ArrayBlockingQueue<>(16);
 
     /**
      * Thread used to write backup data
@@ -138,11 +149,11 @@ public class ReminderService extends Service
      */
     private class BackupWriter implements Runnable {
 
-        protected ArrayBlockingQueue<HashMap<Event, Integer>> queue;
-        private HashMap<Event, Integer> currentMap;
+        protected ArrayBlockingQueue<BackupQueueElement> queue;
+        private BackupQueueElement currentElement;
         private final Service service;
 
-        public BackupWriter(ArrayBlockingQueue<HashMap<Event, Integer>> queue, Service service) {
+        public BackupWriter(ArrayBlockingQueue<BackupQueueElement> queue, Service service) {
             this.queue = queue;
             this.service = service;
         }
@@ -151,11 +162,11 @@ public class ReminderService extends Service
         public void run() {
             while (true) {
                 try{
-                    currentMap = queue.take();
-                    FileOutputStream fo = openFileOutput(BACKUP_FILENAME, MODE_PRIVATE);
+                    currentElement = queue.take();
+                    FileOutputStream fo = openFileOutput(currentElement.filename, MODE_PRIVATE);
                     BufferedOutputStream bo = new BufferedOutputStream(fo);
                     ObjectOutput oo = new ObjectOutputStream(bo);
-                    oo.writeObject(currentMap);
+                    oo.writeObject(currentElement.element);
                     oo.close();
                     PreferenceManager.getDefaultSharedPreferences(service)
                             .edit().putInt(PREF_COUNTER, alarmCounter).commit();
@@ -306,6 +317,10 @@ public class ReminderService extends Service
      * @param event The event to be reminded of
      */
     private void addReminder(Event event) {
+        // Do not set more than one reminder per event
+        if (idToEventMap.containsKey(event.getId())) return;
+
+        // Add reminder
         Intent alarmIntent = new Intent(this, ReminderService.class);
         alarmIntent.putExtra(EXTRA_ID, event.getId());
         PendingIntent pendingAlarmIntent = PendingIntent.getService(this, alarmCounter,
@@ -376,6 +391,9 @@ public class ReminderService extends Service
         // Remove reminders for events that are no longer present in the data
         hasChanged = hasChanged || removeObsoleteReminders(eventGroups);
 
+        // Add reminders for new instances of recurring events on the index
+        hasChanged = hasChanged || addNewRecurringInstances(eventGroups);
+
         // Inform activity if any changes occurred
         if (hasChanged) sendMessage(FLAG_DATA_CHANGED);
 
@@ -441,6 +459,38 @@ public class ReminderService extends Service
     }
 
     /**
+     * Adds reminders for new instances of recurring events that are listed in the index. New means
+     * that the instance does not have a reminder set yet. Existing reminders will not be altered by
+     * this function. Past instances will not be added.
+     * @param eventGroups The underlying data set
+     * @return true if a reminder has been added, false else
+     */
+    private boolean addNewRecurringInstances(SparseArray<EventGroup> eventGroups) {
+        if (eventGroups == null || recurringReminders == null || recurringReminders.isEmpty()) {
+            return false;
+        }
+        Calendar now = Calendar.getInstance();
+        Calendar startOffset;
+        boolean hasChanged = false;
+        for (int i = 0; i < eventGroups.size(); i++) {
+            for (Event e : eventGroups.get(i).getEvents()) {
+                if (!idToEventMap.containsKey(e.getId())
+                        && recurringReminders.contains(e.getRecurringId())) {
+                    // Add only future reminders accounting for the offset
+                    startOffset = (Calendar) e.getStartDate().clone();
+                    startOffset.add(Calendar.MILLISECOND, -1 * reminderOffset);
+                    if (!e.isCurrentlyRunning() && startOffset.compareTo(now) == 1) {
+                        addReminder(e);
+                        hasChanged = true;
+                    }
+                }
+            }
+        }
+
+        return hasChanged;
+    }
+
+    /**
      * Puts a backup copy of the list of currently scheduled events on a queue that is to be written
      * to internal storage
      */
@@ -449,11 +499,17 @@ public class ReminderService extends Service
         for (Event e : idToEventMap.values()) {
             backupMap.put(e, eventToIntentMap.get(e.getId()));
         }
+        BackupQueueElement eventsBackup = new BackupQueueElement();
+        eventsBackup.element = backupMap;
+        eventsBackup.filename = BACKUP_EVENTS_FILENAME;
+        BackupQueueElement recurringBackup = new BackupQueueElement();
+        recurringBackup.element = recurringReminders;
+        recurringBackup.filename = BACKUP_RECURRING_FILENAME;
         try {
-            writeQueue.put(backupMap);
+            writeQueue.put(eventsBackup);
+            writeQueue.put(recurringBackup);
         } catch (InterruptedException e) {
             // Stop writing
-            return;
         }
     }
 
@@ -464,9 +520,43 @@ public class ReminderService extends Service
      *             be restored
      */
     private void restoreBackup(boolean hard) {
+        HashMap<Event, Integer> events = readEventsBackup();
+        List<String> recurring = readRecurringBackup();
+
+        if (events == null) {
+            // No backup loaded
+            return;
+        }
+
+        if (hard) {
+            // Restore backup and create new reminders/alarms.
+            for (Map.Entry<Event, Integer> entry : events.entrySet()) {
+                addReminder(entry.getKey());
+            }
+            recurringReminders = recurring;
+            //  On hard restore, new IDs are set that need to be stored now
+            scheduleBackup();
+        } else {
+            // Restore backup but do not create new reminders/alarms.
+            // Event instances
+            for (Map.Entry<Event, Integer> entry : events.entrySet()) {
+                idToEventMap.put(entry.getKey().getId(), entry.getKey());
+                eventToIntentMap.put(entry.getKey().getId(), entry.getValue());
+            }
+            // Recurring event list
+            recurringReminders = recurring;
+        }
+    }
+
+    /**
+     * Tries to read the event reminder backup
+     * @return The HashMap of event reminders or null if none is found
+     */
+    @SuppressWarnings("unchecked") // Deserializing produces a compiler warning
+    private HashMap<Event, Integer> readEventsBackup() {
         HashMap<Event, Integer> events = null;
         try {
-            FileInputStream fi = openFileInput(BACKUP_FILENAME);
+            FileInputStream fi = openFileInput(BACKUP_EVENTS_FILENAME);
             BufferedInputStream bi = new BufferedInputStream(fi);
             ObjectInput oi = new ObjectInputStream(bi);
             events = (HashMap<Event, Integer>) oi.readObject();
@@ -477,25 +567,29 @@ public class ReminderService extends Service
             e.printStackTrace();
         }
 
-        if (events == null) {
-            // No backup loaded
-            return;
+        return events;
+    }
+
+    /**
+     * Tries to read the recurring reminders list backup
+     * @return The list of recurring reminders or null if none is found
+     */
+    @SuppressWarnings("unchecked") // Deserializing produces a compiler warning
+    private List<String> readRecurringBackup() {
+        List<String> recurring = null;
+        try {
+            FileInputStream fi = openFileInput(BACKUP_RECURRING_FILENAME);
+            BufferedInputStream bi = new BufferedInputStream(fi);
+            ObjectInput oi = new ObjectInputStream(bi);
+            recurring = (List<String>) oi.readObject();
+            oi.close();
+        } catch (FileNotFoundException e) {
+            // No backup in storage
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
         }
 
-        if (hard) {
-            // Restore backup and create new reminders/alarms
-            for (Map.Entry<Event, Integer> entry : events.entrySet()) {
-                addReminder(entry.getKey());
-            }
-            //  On hard restore, new IDs are set that need to be stored now
-            scheduleBackup();
-        } else {
-            // Restore backup but do not create new reminders/alarms
-            for (Map.Entry<Event, Integer> entry : events.entrySet()) {
-                idToEventMap.put(entry.getKey().getId(), entry.getKey());
-                eventToIntentMap.put(entry.getKey().getId(), entry.getValue());
-            }
-        }
+        return recurring;
     }
 
     @Override
@@ -523,5 +617,62 @@ public class ReminderService extends Service
             removeReminder(event);
             addReminder(event);
         }
+    }
+
+    /**
+     * Tests if a reminder is set for all instances of an
+     * {@link de.mbdevelopment.android.rbtvsendeplan.Event}
+     * @param event The event to be checked
+     * @return true if a reminder is set for all instances, false else
+     */
+    public boolean hasRecurringReminder(Event event) {
+        return recurringReminders != null && recurringReminders.contains(event.getRecurringId());
+    }
+
+    /**
+     * Adds reminders for all instances of a recurring event
+     * @param event An instance of the recurring event
+     * @param eventList The list of all available events
+     */
+    public void addRecurringReminder(Event event, List<Event> eventList) {
+        Calendar now = Calendar.getInstance();
+        Calendar startOffset;
+        String recurringId = event.getRecurringId();
+        // Add reminders for all instances
+        for (Event e : eventList) {
+            if (e.getRecurringId() != null && e.getRecurringId().equals(recurringId)) {
+                startOffset = (Calendar) e.getStartDate().clone();
+                startOffset.add(Calendar.MILLISECOND, -1 * reminderOffset);
+                if (!e.isCurrentlyRunning() && startOffset.compareTo(now) == 1) {
+                    // Add reminders for future instances only
+                    addReminder(e);
+                }
+            }
+        }
+        // Add recurringEventId to index
+        if (recurringReminders == null) recurringReminders = new ArrayList<>();
+        recurringReminders.add(recurringId);
+
+        scheduleBackup();
+    }
+
+    /**
+     * Deletes reminders for all instances of a recurring event
+     * @param event An instance of the recurring event
+     */
+    public void deleteRecurringReminder(Event event) {
+        String recurringId = event.getRecurringId();
+        Event[] events = new Event[idToEventMap.size()];
+        idToEventMap.values().toArray(events);
+        // Delete reminders for all instances
+        for (Event e: events) {
+            if (e.getRecurringId() != null && e.getRecurringId().equals(recurringId)) {
+                removeReminder(e);
+            }
+        }
+
+        recurringReminders.remove(recurringId);
+
+        scheduleBackup();
     }
 }

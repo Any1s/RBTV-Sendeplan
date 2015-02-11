@@ -8,6 +8,8 @@ import java.util.Calendar;
  */
 public class Event implements Serializable {
 
+    static final long serialVersionUID = 6083523564013247943L; // Backward compatibility
+
     /**
      * Start date of the event
      */
@@ -34,6 +36,11 @@ public class Event implements Serializable {
     private final String id;
 
     /**
+     * The Google Calendar id of the corresponding recurring event
+     */
+    private final String recurringId;
+
+    /**
      * Determines if an event is currently running in respect to the device's time
      * @return true if the event has started and has not yet finished, false else
      */
@@ -57,6 +64,17 @@ public class Event implements Serializable {
         this.title = title;
         this.type = type;
         this.id = id;
+        this.recurringId = null;
+    }
+
+    public Event(Calendar startDate, Calendar endDate, String title, Type type, String id
+            , String recurringId) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.title = title;
+        this.type = type;
+        this.id = id;
+        this.recurringId = recurringId;
     }
 
     public Calendar getStartDate() {
@@ -77,5 +95,13 @@ public class Event implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public String getRecurringId() {
+        return recurringId;
+    }
+
+    public boolean isRecurring() {
+        return (recurringId != null);
     }
 }

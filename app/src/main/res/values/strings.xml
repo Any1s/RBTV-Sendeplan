@@ -43,6 +43,12 @@
     <string name="error_data_format">Error: Reading the calendar failed</string>
     <string name="error_reminder_before_now">Reminder time is in the past. Please check your reminder time settings.</string>
     <string name="running_indicator">Running now!</string>
+    <string name="reminder_add_dialog_single">For this episode only</string>
+    <string name="reminder_add_dialog_all">For this episode and all future episodes</string>
+    <string name="reminder_add_dialog_title">Add reminder</string>
+    <string name="reminder_remove_dialog_message">Delete reminder for all episodes</string>
+    <string name="reminder_remove_dialog_positive">Ok</string>
+    <string name="reminder_remove_dialog_negative">Cancel</string>
     <!-- Localized End -->
 
     <!-- Preference values -->

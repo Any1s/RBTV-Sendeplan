@@ -32,4 +32,10 @@
     <string name="pref_refresh_time_summary">Aktualisiere alle %s</string>
     <string name="pref_sound">Ton</string>
     <string name="pref_sound_summary">Ton abspielen, wenn eine markierte Show startet</string>
+    <string name="reminder_add_dialog_all">Für diese und alle zukünftigen Episoden</string>
+    <string name="reminder_add_dialog_single">Nur für diese Episode</string>
+    <string name="reminder_add_dialog_title">Erinnerung hinzufügen</string>
+    <string name="reminder_remove_dialog_message">Erinnerung für alle Episoden löschen</string>
+    <string name="reminder_remove_dialog_negative">Abbrechen</string>
+    <string name="reminder_remove_dialog_positive">Ok</string>
 </resources>

@@ -32,7 +32,8 @@ import java.util.List;
  */
 public class ScheduleActivity extends ActionBarActivity implements DataFragment.Callbacks,
         ExpandableListView.OnChildClickListener, AdapterView.OnItemLongClickListener,
-        ExpandableEventListAdapter.ReminderCallbacks {
+        ExpandableEventListAdapter.ReminderCallbacks, AddReminderDialogFragment.SelectionListener,
+        DeleteReminderDialogFragment.SelectionListener {
 
     /**
      * Intent key for the messenger extra
@@ -53,11 +54,6 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
      * The expandable list used to display the data
      */
     private ExpandableListView listView;
-
-    /**
-     * Connection to the reminder service
-     */
-    private ReminderConnection reminderConnection = new ReminderConnection();
 
     /**
      * Reference to the reminder service
@@ -306,16 +302,80 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
      * Changes the reminder state of an event from "remind" to "do not remind" or vice versa
      * @param event The event to get it's state toggled
      */
-    private void toggleReminderState(Event event) {
+    private void toggleReminderState(final Event event) {
         // Service has not yet been bound
         if (reminderService == null) {
-            reminderToggleBuffer.add(event);
+            // Schedule only single time events to be toggled, because they do not need a dialog to
+            // be shown. Recurring events are simply ignored and the user has to retry when the
+            // service is bound. This situation should almost never occur in the real world so we
+            // will the allow this slight hit on the usability.
+            if (!event.isRecurring()) reminderToggleBuffer.add(event);
             return;
         }
 
         // Service is available
+        if (event.isRecurring()) {
+            // Recurring events can be toggled instance-wise or as a whole. Present the user with a
+            // choice. If the current state is "no reminder" the user can choose between a reminder
+            // for this instance only and reminders for all instances. If a reminder is set for all
+            // instances, all will be removed. If the reminder is set only instance-wise, only the
+            // one instance is removed.
+            if (reminderService.hasRecurringReminder(event)) {
+                DeleteReminderDialogFragment dialogFragment = new DeleteReminderDialogFragment();
+                Bundle args = new Bundle();
+                args.putSerializable(DeleteReminderDialogFragment.ARG_EVENT, event);
+                dialogFragment.setArguments(args);
+                dialogFragment.show(getFragmentManager(), DeleteReminderDialogFragment.TAG);
+            } else if (reminderService.hasReminder(event)) {
+                // Toggle only this instance
+                reminderService.toggleState(event);
+                updateListView();
+            } else {
+                AddReminderDialogFragment dialogFragment = new AddReminderDialogFragment();
+                Bundle args = new Bundle();
+                args.putSerializable(AddReminderDialogFragment.ARG_EVENT, event);
+                dialogFragment.setArguments(args);
+                dialogFragment.show(getFragmentManager(), AddReminderDialogFragment.TAG);
+            }
+        } else {
+            // Single time events can be toggled directly
+            reminderService.toggleState(event);
+            updateListView();
+        }
+    }
+
+    @Override
+    public void onSingleSelected(Event event) {
         reminderService.toggleState(event);
+
         updateListView();
+    }
+
+    @Override
+    public void onAllSelected(Event event) {
+        // Compile list of all available events
+        SerializableSparseArray<EventGroup> groupList = dataFragment.getEventGroups();
+        List<Event> eventList = new ArrayList<>();
+        for (int i = 0; i < groupList.size(); i++) {
+            eventList.addAll(groupList.get(i).getEvents());
+        }
+
+        // Add reminders
+        reminderService.addRecurringReminder(event, eventList);
+
+        updateListView();
+    }
+
+    @Override
+    public void onDeletionConfirmed(Event event) {
+        reminderService.deleteRecurringReminder(event);
+
+        updateListView();
+    }
+
+    @Override
+    public void onDeletionCancelled() {
+        // Do nothing...
     }
 
     /**

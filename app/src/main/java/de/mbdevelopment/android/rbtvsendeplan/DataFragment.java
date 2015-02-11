@@ -165,6 +165,7 @@ public class DataFragment extends Fragment implements
     // Attempts to load the event groups from internal storage
     private class FileLoader implements Runnable {
 
+        @SuppressWarnings("unchecked") // Deserializing produces a compiler warning
         @Override
         public void run() {
             if (activity == null) return;
@@ -383,12 +384,36 @@ public class DataFragment extends Fragment implements
             Pair<Event.Type, String> p = processSummary(events.getJSONObject(i)
                     .getString("summary"));
             String id = events.getJSONObject(i).getString("id");
-            curList.add(new Event((Calendar) eventStartDate.clone(), (Calendar) eventEndDate.clone()
-                    , p.second, p.first, id));
+            String recurringId = parseRecurringId(events.getJSONObject(i));
+            if (recurringId == null) {
+                // Single time event
+                curList.add(new Event((Calendar) eventStartDate.clone()
+                        , (Calendar) eventEndDate.clone(), p.second, p.first, id));
+            } else {
+                // Instance of a recurring event
+                curList.add(new Event((Calendar) eventStartDate.clone()
+                        , (Calendar) eventEndDate.clone(), p.second, p.first, id, recurringId));
+            }
         }
         eventGroups.put(j++, new EventGroup(curDate, curList)); // Last group
 
         return eventGroups;
+    }
+
+    /**
+     * Parses the recurringEventId for an event in the JSON representation from the Calendar API
+     * @param event The JSONObject containing the event data
+     * @return The recurringEventId if it is found, null else
+     */
+    private String parseRecurringId(JSONObject event) {
+        String recurringId = null;
+        try {
+            recurringId = event.getString("recurringEventId");
+        } catch (JSONException e) {
+            // No recurring event id is found, so this is no instance of a recurring event
+        }
+
+        return recurringId;
     }
 
     /**
