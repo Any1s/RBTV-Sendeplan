@@ -128,7 +128,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
 
         // Check for cached data
         if (dataFragment.getEventGroups() == null) {
-            loadCalendarData(true);
+            loadCalendarData(false);
         } else {
             onDataLoaded(dataFragment.getEventGroups());
         }
@@ -219,7 +219,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
      */
     public void loadCalendarData(boolean quiet) {
         // Check for WiFi constraint preference
-        if (preferences.getBoolean(getString(R.string.pref_wifi_key), false)) {
+        if (preferences.getBoolean(getString(R.string.pref_wifi_key), true)) {
             ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
             NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (!wifi.isConnected()) {
