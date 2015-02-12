@@ -127,7 +127,8 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         }
 
         // Check for cached data
-        if (dataFragment.getEventGroups() == null) {
+        if (dataFragment.getEventGroups() == null
+                || !preferences.getBoolean(getString(R.string.pref_version_upgraded), false)) {
             loadCalendarData(false);
         } else {
             onDataLoaded(dataFragment.getEventGroups());

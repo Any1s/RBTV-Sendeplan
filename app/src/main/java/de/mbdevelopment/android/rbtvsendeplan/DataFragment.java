@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
@@ -229,7 +228,8 @@ public class DataFragment extends Fragment implements
         try {
             this.callbacks = (Callbacks) activity;
         } catch (ClassCastException e) {
-            Log.e(TAG, "Activities using this fragment must implement it's Callbacks interface!");
+            throw new ClassCastException(activity.toString()
+                    + "must implement the Callbacks interface!");
         }
 
         if (firstAttach) {
@@ -238,11 +238,13 @@ public class DataFragment extends Fragment implements
 
             firstAttach = false;
 
-            // Restore local copy on first start
-            new Thread(new FileLoader()).start();
-
             // Get Preferences
             preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+
+            // Restore local copy on first start if no version upgrades are pending
+            if(preferences.getBoolean(getString(R.string.pref_version_upgraded), false)) {
+                new Thread(new FileLoader()).start();
+            }
 
             // Load configuration
             refreshPeriodically = preferences.getBoolean(getString(R.string.pref_refresh_key), true);

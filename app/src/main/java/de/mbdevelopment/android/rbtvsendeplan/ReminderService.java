@@ -130,6 +130,11 @@ public class ReminderService extends Service
     private Thread backupWriterThread;
 
     /**
+     * Flag indicating if the current app version has performed all necessary upgrades
+     */
+    private boolean versionUpgraded;
+
+    /**
      * Binder class that grants access to this service. The only method will return a reference to
      * this service with which it's public methods can be accessed.
      */
@@ -191,8 +196,10 @@ public class ReminderService extends Service
         preferences.registerOnSharedPreferenceChangeListener(this);
 
         // Restore counter as not to duplicate any alarm IDs
-        alarmCounter = PreferenceManager.getDefaultSharedPreferences(this)
-                .getInt(PREF_COUNTER, 0);
+        alarmCounter = preferences.getInt(PREF_COUNTER, 0);
+
+        // Get upgrade flag
+        versionUpgraded = preferences.getBoolean(getString(R.string.pref_version_upgraded), false);
 
         // Start backup writer thread
         BackupWriter backupWriter = new BackupWriter(writeQueue, this);
@@ -378,6 +385,10 @@ public class ReminderService extends Service
      */
     public void updateReminderDates(SparseArray<EventGroup> eventGroups) {
         if (eventGroups == null || eventGroups.size() < 1) return;
+
+        // Perform one-time upgrades on application version changes that require it
+        if (!versionUpgraded) refreshReminderData(eventGroups);
+
         boolean hasChanged = false;
         for (int i = 0; i < eventGroups.size(); i++) {
             // Check all events in each group
@@ -674,5 +685,27 @@ public class ReminderService extends Service
         recurringReminders.remove(recurringId);
 
         scheduleBackup();
+    }
+
+    /**
+     * Refreshes the reminder data mapping to contain new object versions
+     * @param eventGroups New schedule data
+     */
+    private void refreshReminderData(SparseArray<EventGroup> eventGroups) {
+        EventGroup currentGroup;
+        for (int i = 0; i < eventGroups.size(); i++) {
+            currentGroup = eventGroups.get(i);
+            for (Event e : currentGroup.getEvents()) {
+                if (idToEventMap.containsKey(e.getId())) {
+                    // Replace old event object by new one
+                    idToEventMap.put(e.getId(), e);
+                }
+            }
+        }
+
+        // Save state
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putBoolean(getString(R.string.pref_version_upgraded), true).commit();
+        versionUpgraded = true;
     }
 }
