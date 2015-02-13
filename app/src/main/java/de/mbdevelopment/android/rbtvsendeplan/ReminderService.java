@@ -539,6 +539,17 @@ public class ReminderService extends Service
             return;
         }
 
+        // Remove reminders for past events
+        Calendar now = Calendar.getInstance();
+        Event currentEvent;
+        Iterator<Map.Entry<Event, Integer>> iterator = events.entrySet().iterator();
+        while (iterator.hasNext()) {
+            currentEvent = iterator.next().getKey();
+            if (currentEvent.getStartDate().compareTo(now) < 0) {
+                iterator.remove();
+            }
+        }
+
         if (hard) {
             // Restore backup and create new reminders/alarms.
             for (Map.Entry<Event, Integer> entry : events.entrySet()) {
