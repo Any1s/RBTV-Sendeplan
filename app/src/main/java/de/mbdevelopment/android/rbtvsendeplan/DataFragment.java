@@ -319,7 +319,7 @@ public class DataFragment extends Fragment implements
         calendarUrl += "&key=" + Config.GOOGLE_API_KEY;
 
         // Fetch Google calendar
-        new CalendarDownloadTask().execute(calendarUrl);
+        new CalendarDownloadTask(activity).execute(calendarUrl);
     }
 
     /**
@@ -452,6 +452,19 @@ public class DataFragment extends Fragment implements
      * passes the result to the callback.
      */
     private class CalendarDownloadTask extends AsyncTask<String, String, String> {
+
+        /**
+         * Context used to fetch resources. This context is used rather than the Fragment's own
+         * methods because this Fragment can exist without being attached to an activity and so can
+         * this AsyncTask. Using the Fragment's methods during an unattached state would cause a
+         * NullPointerException.
+         */
+        private final Context context;
+
+        public CalendarDownloadTask (Context context) {
+            this.context = context;
+        }
+
         @Override
         protected String doInBackground(String... params) {
             StringBuilder builder = new StringBuilder();
@@ -470,10 +483,10 @@ public class DataFragment extends Fragment implements
                         builder.append(line);
                     }
                 } else {
-                    publishProgress(getString(R.string.error_download_failed));
+                    publishProgress(context.getString(R.string.error_download_failed));
                 }
             } catch (IOException e) {
-                publishProgress(getString(R.string.error_download_failed));
+                publishProgress(context.getString(R.string.error_download_failed));
             }
             return builder.toString();
         }
@@ -482,7 +495,7 @@ public class DataFragment extends Fragment implements
         protected void onProgressUpdate(String... values) {
             if (values != null) {
                 for(String v : values) {
-                    Toast.makeText(activity, v, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, v, Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -495,7 +508,7 @@ public class DataFragment extends Fragment implements
                 setEventGroups(groupEvents(events));
                 if (callbacks != null) callbacks.onDataLoaded(eventGroups);
             } catch (JSONException e) {
-                Toast.makeText(activity, getString(R.string.error_data_format),
+                Toast.makeText(context, context.getString(R.string.error_data_format),
                         Toast.LENGTH_SHORT).show();
             }
 
