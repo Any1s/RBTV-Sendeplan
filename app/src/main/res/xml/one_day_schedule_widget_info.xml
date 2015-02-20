@@ -6,5 +6,6 @@
     android:minResizeHeight="110dp"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/one_day_schedule_widget"
-    android:resizeMode="horizontal|vertical">
+    android:resizeMode="horizontal|vertical"
+    android:previewImage="@drawable/one_day_schedule_widget_preview" >
 </appwidget-provider>
