@@ -38,4 +38,5 @@
     <string name="reminder_remove_dialog_message">Erinnerung für alle Episoden löschen</string>
     <string name="reminder_remove_dialog_negative">Abbrechen</string>
     <string name="reminder_remove_dialog_positive">Ok</string>
+    <string name="one_day_schedule_widget_empty_view_text">Keine Sendeplandaten</string>
 </resources>

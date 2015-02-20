@@ -55,7 +55,7 @@ public class DataFragment extends Fragment implements
     /**
      * Filename for the local calendar copy
      */
-    private static final String ON_DISK_FILE = "calendar.local";
+    public static final String ON_DISK_FILE = "calendar.local";
 
     /**
      * Grouped list of events

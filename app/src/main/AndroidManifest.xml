@@ -34,6 +34,16 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver android:name="de.mbdevelopment.android.rbtvsendeplan.OneDayScheduleWidgetProvider" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/one_day_schedule_widget_info" />
+        </receiver>
+        <service android:name="de.mbdevelopment.android.rbtvsendeplan.OneDayScheduleWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 
 </manifest>

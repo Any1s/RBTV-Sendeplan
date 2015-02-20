@@ -1,7 +1,11 @@
 package de.mbdevelopment.android.rbtvsendeplan;
 
+import android.app.AlarmManager;
 import android.app.FragmentManager;
+import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
@@ -12,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -106,6 +111,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         public void handleMessage(Message msg) {
             if (msg.arg1 == ReminderService.FLAG_DATA_CHANGED) {
                 updateListView();
+                notifyWidgets();
             }
         }
     }
@@ -131,7 +137,8 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
                 || !preferences.getBoolean(getString(R.string.pref_version_upgraded), false)) {
             loadCalendarData(false);
         } else {
-            onDataLoaded(dataFragment.getEventGroups());
+            // Do not notify
+            onDataLoaded(dataFragment.getEventGroups(), false);
         }
     }
 
@@ -150,7 +157,17 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
 
     @Override
     public void onDataLoaded(final SparseArray<EventGroup> eventGroups) {
+        onDataLoaded(eventGroups, true);
+    }
 
+    /**
+     * Wrapper function around {@link #onDataLoaded(android.util.SparseArray)} that additionally
+     * updates the widget(s).
+     * @param eventGroups See {@link DataFragment.Callbacks#onDataLoaded(android.util.SparseArray)}
+     * @param updateWidget Set this to true if you want the widget(s) to get updated, false else
+     */
+    public void onDataLoaded(final SparseArray<EventGroup> eventGroups, final boolean updateWidget)
+    {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -183,6 +200,8 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
                 } else {
                     reminderService.updateReminderDates(dataFragment.getEventGroups());
                 }
+
+                if (updateWidget) notifyWidgets();
             }
         });
     }
@@ -331,6 +350,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
                 // Toggle only this instance
                 reminderService.toggleState(event);
                 updateListView();
+                notifyWidgets();
             } else {
                 AddReminderDialogFragment dialogFragment = new AddReminderDialogFragment();
                 Bundle args = new Bundle();
@@ -342,6 +362,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
             // Single time events can be toggled directly
             reminderService.toggleState(event);
             updateListView();
+            notifyWidgets();
         }
     }
 
@@ -350,6 +371,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         reminderService.toggleState(event);
 
         updateListView();
+        notifyWidgets();
     }
 
     @Override
@@ -365,6 +387,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         reminderService.addRecurringReminder(event, eventList);
 
         updateListView();
+        notifyWidgets();
     }
 
     @Override
@@ -372,6 +395,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
         reminderService.deleteRecurringReminder(event);
 
         updateListView();
+        notifyWidgets();
     }
 
     @Override
@@ -420,5 +444,27 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     @Override
     public void refreshCalendarData() {
         loadCalendarData(true);
+    }
+
+    /**
+     * Notifies all widgets of changed data
+     */
+    private void notifyWidgets() {
+        int[] ids = AppWidgetManager.getInstance(getApplicationContext())
+                .getAppWidgetIds(new ComponentName(getApplication(),
+                        OneDayScheduleWidgetProvider.class));
+        Intent widgetIntent = new Intent(getApplicationContext(),
+                OneDayScheduleWidgetProvider.class);
+        widgetIntent.setAction(OneDayScheduleWidgetProvider.UPDATE_ACTION);
+        widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        PendingIntent pendingWidgetIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                OneDayScheduleWidgetProvider.UPDATE_INTENT_ID, widgetIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        // Schedule the update with two seconds delay to bundle multiple data changes to avoid
+        // updating the widget too often in a short time frame.
+        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 2000,
+                pendingWidgetIntent);
     }
 }
