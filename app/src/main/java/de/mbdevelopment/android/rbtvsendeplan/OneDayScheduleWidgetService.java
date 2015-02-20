@@ -162,21 +162,23 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
             // Find shows to display. Display the current show, two before and 7 after. Maximum
             // Time difference is +/- one day.
             eventList = getCurrentEventList(eventGroups);
-            // Set update intent to the end of the currently running show
+            // Set update intent to the end of the currently running show if one is found
             Event curEvent = findCurrentEvent(eventGroups);
-            Intent updateIntent = new Intent(context, OneDayScheduleWidgetProvider.class);
-            updateIntent.setAction(OneDayScheduleWidgetProvider.UPDATE_ACTION);
-            int[] idExtra = {appwidgetId};
-            updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, idExtra);
-            PendingIntent pendingUpdateintent = PendingIntent.getBroadcast(context
-                    , OneDayScheduleWidgetProvider.UPDATE_INTENT_ID
-                    , updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            // Schedule the update one second after the end of the currently running show and do
-            // not wake up the device by using RTC instead of RTC_WAKEUP.
-            AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            am.set(AlarmManager.RTC
-                    , curEvent.getEndDate().getTimeInMillis() + 1000
-                    , pendingUpdateintent);
+            if (curEvent != null) {
+                Intent updateIntent = new Intent(context, OneDayScheduleWidgetProvider.class);
+                updateIntent.setAction(OneDayScheduleWidgetProvider.UPDATE_ACTION);
+                int[] idExtra = {appwidgetId};
+                updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, idExtra);
+                PendingIntent pendingUpdateintent = PendingIntent.getBroadcast(context
+                        , OneDayScheduleWidgetProvider.UPDATE_INTENT_ID
+                        , updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                // Schedule the update one second after the end of the currently running show and do
+                // not wake up the device by using RTC instead of RTC_WAKEUP.
+                AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                am.set(AlarmManager.RTC
+                        , curEvent.getEndDate().getTimeInMillis() + 1000
+                        , pendingUpdateintent);
+            }
         }
         
         if (reminders != null) {
