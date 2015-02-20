@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_event_row"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/widget_event_list_padding_left"
+    android:paddingRight="@dimen/widget_event_list_padding_right"
+    android:paddingTop="@dimen/widget_event_list_padding_top"
+    android:paddingBottom="@dimen/widget_event_list_padding_bottom" >
+
+    <TextView
+        android:id="@+id/widget_event_date"
+        android:layout_width="@dimen/widget_event_list_date_width"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size"
+        android:textColor="@color/event_list_child_text"
+        android:gravity="right|top"/>
+    <ImageView
+        android:id="@+id/widget_event_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/widget_event_list_type_padding_top"
+        android:paddingBottom="@dimen/widget_event_list_type_padding_bottom"
+        android:paddingLeft="@dimen/widget_event_list_type_padding_left"
+        android:paddingRight="@dimen/widget_event_list_type_padding_right"
+        android:layout_marginLeft="@dimen/widget_event_list_type_margin_left"/>
+    <TextView
+        android:id="@+id/widget_event_name"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/widget_event_list_title_margin_left"
+        android:textSize="@dimen/text_size"
+        android:textColor="@color/event_list_child_text"/>
+    <ImageView
+        android:id="@+id/widget_event_reminder"
+        android:layout_width="@dimen/widget_event_list_reminder_size"
+        android:layout_height="@dimen/widget_event_list_reminder_size"
+        android:scaleType="fitCenter"
+        android:paddingLeft="@dimen/widget_event_list_reminder_padding_left"
+        android:paddingBottom="0dp"
+        android:paddingRight="0dp"
+        android:paddingTop="0dp"/>
+
+</LinearLayout>

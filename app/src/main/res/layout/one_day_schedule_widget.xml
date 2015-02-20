@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/one_day_schedule_widget"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ListView
+        android:id="@+id/one_day_schedule_widget_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/one_day_schedule_widget_list_background"/>
+    <TextView
+        android:id="@+id/one_day_schedule_widget_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:background="@color/one_day_schedule_widget_item_background"
+        android:textColor="@color/one_day_schedule_widget_item_text_color"
+        android:textStyle="bold"
+        android:text="@string/one_day_schedule_widget_empty_view_text"
+        android:textSize="@dimen/one_day_schedule_widget_empty_view_text_size"/>
+</FrameLayout>

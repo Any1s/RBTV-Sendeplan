@@ -52,7 +52,7 @@ public class ReminderService extends Service
     /**
      * Filename for the backup of the list of events with reminders
      */
-    private static final String BACKUP_EVENTS_FILENAME = "evens.bak";
+    public static final String BACKUP_EVENTS_FILENAME = "evens.bak";
 
     /**
      * Filename for the backup of the recurring events with reminders for all instances
