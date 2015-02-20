@@ -368,7 +368,7 @@ public class DataFragment extends Fragment implements
     private SerializableSparseArray<EventGroup> groupEvents (JSONArray events) throws JSONException {
         SerializableSparseArray<EventGroup> eventGroups = new SerializableSparseArray<>();
         Calendar curDate = null;
-        ArrayList<Event> curList = null;
+        ArrayList<Event> curList = new ArrayList<>();
         int j = 0;
         for (int i = 0; i < events.length(); i++) {
             Calendar eventStartDate = Utils.getCalendarFromJSON(events.getJSONObject(i)
