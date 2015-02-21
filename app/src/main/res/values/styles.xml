@@ -14,6 +14,9 @@
         <!-- Support library compatibility -->
         <item name="background">@color/action_bar_background</item>
 
+        <item name="logo">@drawable/ic_logo</item>
+        <item name="displayOptions">useLogo|showHome</item>
+
         <item name="android:titleTextStyle">@style/RBTVTitleTextStyle</item>
         <item name="titleTextStyle">@style/RBTVTitleTextStyle</item>
     </style>

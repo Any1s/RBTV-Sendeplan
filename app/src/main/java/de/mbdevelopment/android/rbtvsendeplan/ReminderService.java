@@ -253,7 +253,7 @@ public class ReminderService extends Service
         PendingIntent clickIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(R.drawable.ic_logo)
                 .setContentTitle(idToEventMap.get(id).getTitle())
                 .setContentText(String.format(getString(R.string.reminder_text),
                         sdf.format(idToEventMap.get(id).getStartDate().getTime())))
@@ -338,6 +338,7 @@ public class ReminderService extends Service
 
         alarmManager.set(AlarmManager.RTC_WAKEUP,
                 event.getStartDate().getTimeInMillis() - reminderOffset,
+                //System.currentTimeMillis() - reminderOffset, // DEV
                 pendingAlarmIntent);
     }
 

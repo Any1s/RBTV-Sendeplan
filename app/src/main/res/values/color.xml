@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="live_background">#ffcdcd</color>
-    <color name="live_background_selected">#ff5656</color>
-    <color name="new_background">#cddeff</color>
-    <color name="new_background_selected">#5790ff</color>
+    <color name="live_background">#33ffcdcd</color>
+    <color name="live_background_selected">#ffcdcd</color>
+    <color name="new_background">#3398D8FF</color>
+    <color name="new_background_selected">#98D8FF</color>
     <color name="default_background">#ffffff</color>
-    <color name="default_background_selected">#a8a8a8</color>
-    <color name="event_list_group_expanded_background">#e8e8e8</color>
-    <color name="event_list_group_collapsed_background">#cccccc</color>
+    <color name="default_background_selected">#f2f2f2</color>
+    <color name="event_list_group_expanded_background">#064E7B</color>
+    <color name="event_list_group_collapsed_background">#f2f2f2</color>
     <color name="event_list_reminder_icon_hidden">#00ffffff</color>
     <color name="event_list_reminder_icon_disabled">#11000000</color>
     <color name="event_list_reminder_icon_enabled">#000000</color>
     <color name="event_list_group_text">#E65e5e5e</color>
+    <color name="event_list_group_text_selected">#E6ffffff</color>
     <color name="event_list_child_text">#E65e5e5e</color>
     <color name="running_indicator">#0d9900</color>
     <color name="action_bar_background">#c80000</color>

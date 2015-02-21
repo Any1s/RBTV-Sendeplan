@@ -266,6 +266,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
             openTwitchChannel();
             return true;
         }
+
         return false;
     }
 

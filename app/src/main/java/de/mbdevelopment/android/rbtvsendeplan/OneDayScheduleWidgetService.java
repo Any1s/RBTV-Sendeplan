@@ -259,9 +259,9 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
             return Color.TRANSPARENT;
         }
         if (hasReminder(event)) {
-            return R.drawable.ic_action_social_notifications;
+            return R.drawable.ic_alarm_on_black_36dp;
         }
-        return R.drawable.ic_action_social_notifications_none;
+        return R.drawable.ic_alarm_add_grey600_36dp;
     }
 
     /**
