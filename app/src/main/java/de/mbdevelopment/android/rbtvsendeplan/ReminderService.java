@@ -338,7 +338,6 @@ public class ReminderService extends Service
 
         alarmManager.set(AlarmManager.RTC_WAKEUP,
                 event.getStartDate().getTimeInMillis() - reminderOffset,
-                //System.currentTimeMillis() - reminderOffset, // DEV
                 pendingAlarmIntent);
     }
 
