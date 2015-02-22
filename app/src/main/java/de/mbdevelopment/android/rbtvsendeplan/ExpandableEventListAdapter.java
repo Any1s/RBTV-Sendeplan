@@ -63,6 +63,10 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @param eventGroups List of grouped events
      */
     public ExpandableEventListAdapter(Activity activity, SparseArray<EventGroup> eventGroups) {
+        typeFace = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-Light.ttf");
+        typeFaceLightItalic = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-LightItalic.ttf");
+        typeFaceBold = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
+        
         this.eventGroups = eventGroups;
         inflater = activity.getLayoutInflater();
         this.activity = activity;
@@ -84,10 +88,6 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
             eventHolder.reminderView = (ImageView) rowView.findViewById(R.id.event_reminder);
             rowView.setTag(eventHolder);
         }
-
-        typeFace = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-Light.ttf");
-        typeFaceLightItalic = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-LightItalic.ttf");
-        typeFaceBold = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
 
         EventHolder eventHolder = (EventHolder) rowView.getTag();
 
