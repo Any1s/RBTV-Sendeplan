@@ -295,7 +295,7 @@ public class DataFragment extends Fragment implements
     /**
      * Loads the calendar data via the Google Calendar API in background
      */
-    public void loadCalendarData() {
+    public void loadCalendarData(Context context) {
         if (isLoading) return;
 
         // Show indicator
@@ -319,7 +319,7 @@ public class DataFragment extends Fragment implements
         calendarUrl += "&key=" + Config.GOOGLE_API_KEY;
 
         // Fetch Google calendar
-        new CalendarDownloadTask(activity).execute(calendarUrl);
+        new CalendarDownloadTask(context).execute(calendarUrl);
     }
 
     /**

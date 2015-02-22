@@ -253,7 +253,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
 
         // Actually load data
         if (dataFragment != null) {
-            dataFragment.loadCalendarData();
+            dataFragment.loadCalendarData(getApplicationContext());
         }
     }
 
