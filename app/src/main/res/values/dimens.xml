@@ -17,7 +17,7 @@
     <dimen name="event_list_reminder_size">27sp</dimen>
     <dimen name="event_list_reminder_padding_left">4dp</dimen>
     <dimen name="event_list_title_margin_left">4dp</dimen>
-    <dimen name="event_list_type_padding_top">6dp</dimen>
+    <dimen name="event_list_type_padding_top">5dp</dimen>
     <dimen name="event_list_type_padding_bottom">5dp</dimen>
     <dimen name="event_list_type_padding_left">5dp</dimen>
     <dimen name="event_list_type_padding_right">5dp</dimen>
