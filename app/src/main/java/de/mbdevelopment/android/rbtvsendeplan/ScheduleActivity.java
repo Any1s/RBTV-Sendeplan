@@ -48,7 +48,7 @@ public class ScheduleActivity extends ActionBarActivity implements DataFragment.
     /**
      * URL to the RocketBeans.TV Twitch channel
      */
-    private static final String TWITCH_URL = "http://twitch.tv/rocketbeanstv";
+    public static final String TWITCH_URL = "http://twitch.tv/rocketbeanstv";
 
     /**
      * The fragment used to retrieve and store data

@@ -6,7 +6,10 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,6 +19,10 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.SparseArray;
+
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.NotificationCompat.WearableExtender;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -250,6 +257,20 @@ public class ReminderService extends Service
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         Intent intent = new Intent(this, ScheduleActivity.class);
+
+        Uri twitch = Uri.parse(ScheduleActivity.TWITCH_URL);
+        Intent twitchIntent = new Intent(Intent.ACTION_VIEW, twitch);
+        PendingIntent twitchPendingIntent = PendingIntent.getActivity(this, 0, twitchIntent, 0);
+
+        // Android Wear fullscreen background image from drawable
+        Bitmap wear_bg = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                R.drawable.bg_wear);
+
+        // Android Wear specific notification settings
+        NotificationCompat.WearableExtender wearableExtender =
+                new NotificationCompat.WearableExtender()
+                        .setBackground(wear_bg);
+
         PendingIntent clickIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
@@ -258,6 +279,10 @@ public class ReminderService extends Service
                 .setContentText(String.format(getString(R.string.reminder_text),
                         sdf.format(idToEventMap.get(id).getStartDate().getTime())))
                 .setContentIntent(clickIntent)
+                .addAction(R.drawable.ic_play_circle_fill_white_36dp,
+                        getString(R.string.notification_open_twitch_action_text),
+                        twitchPendingIntent)
+                .extend(wearableExtender)
                 .setAutoCancel(true);
         if (pref.getBoolean(getString(R.string.pref_vibrate_key), true)) {
             builder.setVibrate(new long[] {0, 500, 500, 500});
