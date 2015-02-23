@@ -32,6 +32,10 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     private ReminderCallbacks callbacks;
     private Drawable emptyDrawable = new ColorDrawable(Color.TRANSPARENT);
 
+    Typeface typeFace;
+    Typeface typeFaceLightItalic;
+    Typeface typeFaceBold;
+
     /**
      * View Holder for the list entries, using the Holder Pattern.
      */
@@ -59,6 +63,10 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @param eventGroups List of grouped events
      */
     public ExpandableEventListAdapter(Activity activity, SparseArray<EventGroup> eventGroups) {
+        typeFace = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-Light.ttf");
+        typeFaceLightItalic = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-LightItalic.ttf");
+        typeFaceBold = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
+        
         this.eventGroups = eventGroups;
         inflater = activity.getLayoutInflater();
         this.activity = activity;
@@ -122,10 +130,13 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         }
 
         // Set data
+        eventHolder.dateView.setTypeface(typeFaceBold);
         eventHolder.dateView.setText(formatEventDate(event.getStartDate()));
         eventHolder.typeView.setImageDrawable(indicator);
+        eventHolder.nameView.setTypeface(typeFace);
         eventHolder.nameView.setText(event.getTitle());
         if (runningIndicator != null) {
+            eventHolder.nameView.setTypeface(typeFaceLightItalic);
             eventHolder.nameView.append(runningIndicator);
         }
         eventHolder.reminderView.setImageDrawable(getIconDrawable(event));
@@ -143,9 +154,9 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
             return emptyDrawable;
         }
         if (callbacks.hasReminder(event)) {
-            return activity.getResources().getDrawable(R.drawable.ic_action_social_notifications);
+            return activity.getResources().getDrawable(R.drawable.ic_alarm_on_black_36dp);
         }
-        return activity.getResources().getDrawable(R.drawable.ic_action_social_notifications_none);
+        return activity.getResources().getDrawable(R.drawable.ic_alarm_add_grey600_36dp);
     }
 
     /**
@@ -196,7 +207,14 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         rowView.setBackgroundColor(isExpanded
                 ? parent.getResources().getColor(R.color.event_list_group_expanded_background)
                 : parent.getResources().getColor(R.color.event_list_group_collapsed_background));
+        groupHolder.groupView.setTextColor(isExpanded
+                ? parent.getResources().getColor(R.color.event_list_group_text_selected)
+                : parent.getResources().getColor(R.color.event_list_group_text));
         groupHolder.groupView.setText(formatGroupDate(eventGroups.get(groupPosition).getDate()));
+        groupHolder.groupView.setTypeface(typeFaceBold);
+        /*groupHolder.groupView.setTypeface(isExpanded
+                ? typeFaceBold
+                : typeFace);*/
 
         return rowView;
     }
@@ -207,7 +225,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @return Formatted date
      */
     private String formatGroupDate(Calendar date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE dd.MM.yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd.MM.yyyy");
         return sdf.format(date.getTime());
     }
 
