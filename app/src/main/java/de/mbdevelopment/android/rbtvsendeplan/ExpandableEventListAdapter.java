@@ -63,9 +63,12 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @param eventGroups List of grouped events
      */
     public ExpandableEventListAdapter(Activity activity, SparseArray<EventGroup> eventGroups) {
-        typeFace = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-Light.ttf");
-        typeFaceLightItalic = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-LightItalic.ttf");
-        typeFaceBold = Typeface.createFromAsset(activity.getApplicationContext().getAssets(), "fonts/RobotoCondensed-Bold.ttf");
+        typeFace = Typeface.createFromAsset(activity.getApplicationContext().getAssets(),
+                "fonts/RobotoCondensed-Light.ttf");
+        typeFaceLightItalic = Typeface.createFromAsset(activity.getApplicationContext().getAssets(),
+                "fonts/RobotoCondensed-LightItalic.ttf");
+        typeFaceBold = Typeface.createFromAsset(activity.getApplicationContext().getAssets(),
+                "fonts/RobotoCondensed-Bold.ttf");
         
         this.eventGroups = eventGroups;
         inflater = activity.getLayoutInflater();
@@ -212,9 +215,6 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
                 : parent.getResources().getColor(R.color.event_list_group_text));
         groupHolder.groupView.setText(formatGroupDate(eventGroups.get(groupPosition).getDate()));
         groupHolder.groupView.setTypeface(typeFaceBold);
-        /*groupHolder.groupView.setTypeface(isExpanded
-                ? typeFaceBold
-                : typeFace);*/
 
         return rowView;
     }
