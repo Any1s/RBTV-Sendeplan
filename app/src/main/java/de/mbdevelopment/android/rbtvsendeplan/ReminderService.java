@@ -274,7 +274,7 @@ public class ReminderService extends Service
         PendingIntent clickIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_logo)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(idToEventMap.get(id).getTitle())
                 .setContentText(String.format(getString(R.string.reminder_text),
                         sdf.format(idToEventMap.get(id).getStartDate().getTime())))
