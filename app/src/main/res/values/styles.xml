@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="android:style/Theme.Holo.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="android:actionBarStyle">@style/RBTVActionBar</item>
         <item name="actionBarStyle">@style/RBTVActionBar</item>
@@ -9,7 +9,7 @@
     </style>
 
     <!-- Action bar styles -->
-    <style name="RBTVActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+    <style name="RBTVActionBar" parent="android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
         <item name="android:background">@color/action_bar_background</item>
 
         <!-- Support library compatibility -->
@@ -23,7 +23,7 @@
     </style>
 
     <!-- Title text styles -->
-    <style name="RBTVTitleTextStyle" parent="@style/Base.TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+    <style name="RBTVTitleTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse">
         <item name="android:textColor">@color/action_bar_text</item>
     </style>
 
