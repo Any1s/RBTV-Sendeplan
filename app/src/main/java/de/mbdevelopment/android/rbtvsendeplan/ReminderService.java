@@ -142,6 +142,11 @@ public class ReminderService extends Service
     private boolean versionUpgraded;
 
     /**
+     * Bitmap that holds the Android Wear Fullscreen background image
+     */
+    Bitmap wear_bg;
+
+    /**
      * Binder class that grants access to this service. The only method will return a reference to
      * this service with which it's public methods can be accessed.
      */
@@ -202,6 +207,10 @@ public class ReminderService extends Service
                         getString(R.string.pref_reminder_offset_default)));
         preferences.registerOnSharedPreferenceChangeListener(this);
 
+        // Android Wear fullscreen background image from drawable
+        wear_bg = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                R.drawable.bg_wear);
+
         // Restore counter as not to duplicate any alarm IDs
         alarmCounter = preferences.getInt(PREF_COUNTER, 0);
 
@@ -261,10 +270,6 @@ public class ReminderService extends Service
         Uri twitch = Uri.parse(ScheduleActivity.TWITCH_URL);
         Intent twitchIntent = new Intent(Intent.ACTION_VIEW, twitch);
         PendingIntent twitchPendingIntent = PendingIntent.getActivity(this, 0, twitchIntent, 0);
-
-        // Android Wear fullscreen background image from drawable
-        Bitmap wear_bg = BitmapFactory.decodeResource(getApplicationContext().getResources(),
-                R.drawable.bg_wear);
 
         // Android Wear specific notification settings
         NotificationCompat.WearableExtender wearableExtender =
