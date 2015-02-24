@@ -20,4 +20,9 @@
     <color name="one_day_schedule_widget_item_background">#ffffff</color>
     <color name="one_day_schedule_widget_item_text_color">#000000</color>
     <color name="one_day_schedule_widget_list_background">#ffffff</color>
+
+    <!-- Material Design -->
+    <color name="primary">#c80000</color>
+    <color name="primary_dark">#a60000</color>
+    <color name="window_background">#ffffff</color>
 </resources>

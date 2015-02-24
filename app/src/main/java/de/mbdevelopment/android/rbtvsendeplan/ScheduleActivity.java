@@ -1,5 +1,6 @@
 package de.mbdevelopment.android.rbtvsendeplan;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.FragmentManager;
 import android.app.PendingIntent;
@@ -18,7 +19,6 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.Menu;
@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * Main activity containing the schedule.
  */
-public class ScheduleActivity extends ActionBarActivity implements DataFragment.Callbacks,
+public class ScheduleActivity extends Activity implements DataFragment.Callbacks,
         ExpandableListView.OnChildClickListener, AdapterView.OnItemLongClickListener,
         ExpandableEventListAdapter.ReminderCallbacks, AddReminderDialogFragment.SelectionListener,
         DeleteReminderDialogFragment.SelectionListener {

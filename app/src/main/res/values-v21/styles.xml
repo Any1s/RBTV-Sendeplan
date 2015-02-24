@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="android:Theme.Material.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:colorPrimary">@color/primary</item>
+        <item name="android:colorPrimaryDark">@color/primary_dark</item>
+        <item name="android:windowBackground">@color/window_background</item>
+
+        <item name="android:actionBarStyle">@style/RBTVActionBar</item>
+    </style>
+
+    <!-- Action bar styles -->
+    <style name="RBTVActionBar" parent="android:Widget.Material.Light.ActionBar.Solid">
+        <item name="android:logo">@drawable/ic_logo</item>
+        <item name="android:displayOptions">useLogo|showHome</item>
+    </style>
+</resources>

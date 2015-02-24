@@ -5,7 +5,8 @@
     android:paddingLeft="@dimen/event_list_padding_left"
     android:paddingRight="@dimen/event_list_padding_right"
     android:paddingTop="@dimen/event_list_padding_top"
-    android:paddingBottom="@dimen/event_list_padding_bottom">
+    android:paddingBottom="@dimen/event_list_padding_bottom"
+    android:elevation="0dp">
 
     <TextView
         android:id="@+id/event_date"

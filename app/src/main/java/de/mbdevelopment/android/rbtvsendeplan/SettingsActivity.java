@@ -1,13 +1,13 @@
 package de.mbdevelopment.android.rbtvsendeplan;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
 
 
 /**
  * Activity providing access to user preferences
  */
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
