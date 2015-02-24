@@ -63,6 +63,9 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
 
     @Override
     public RemoteViews getViewAt(int position) {
+        if (eventList == null || position >= eventList.size()) {
+            return null;
+        }
         Event event = eventList.get(position);
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         RemoteViews remoteViews = new RemoteViews(context.getPackageName()
