@@ -15,11 +15,13 @@
     <color name="event_list_group_text_selected">#E6ffffff</color>
     <color name="event_list_child_text">#E65e5e5e</color>
     <color name="running_indicator">#0d9900</color>
-    <color name="action_bar_background">#c80000</color>
+    <color name="action_bar_background">@color/primary</color>
     <color name="action_bar_text">#ffffff</color>
     <color name="one_day_schedule_widget_item_background">#ffffff</color>
     <color name="one_day_schedule_widget_item_text_color">#000000</color>
     <color name="one_day_schedule_widget_list_background">#ffffff</color>
+    <color name="one_day_schedule_widget_header_background">@color/primary</color>
+    <color name="one_day_schedule_widget_header_text">#ffffff</color>
 
     <!-- Material Design -->
     <color name="primary">#c80000</color>
