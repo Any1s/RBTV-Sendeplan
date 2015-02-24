@@ -5,6 +5,7 @@
         <!-- Customize your theme here. -->
         <item name="android:actionBarStyle">@style/RBTVActionBar</item>
         <item name="actionBarStyle">@style/RBTVActionBar</item>
+        <item name="android:windowBackground">@color/window_background</item>
     </style>
 
     <!-- Action bar styles -->
