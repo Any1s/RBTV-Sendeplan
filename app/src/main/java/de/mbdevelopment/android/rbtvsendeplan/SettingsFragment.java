@@ -44,8 +44,6 @@ public class SettingsFragment extends PreferenceFragment
 
         SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
 
-        // Set
-
         // Register self als listener for changes
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
