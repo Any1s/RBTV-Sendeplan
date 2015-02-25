@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -290,8 +291,12 @@ public class ReminderService extends Service
         if (pref.getBoolean(getString(R.string.pref_led_key), true)) {
             builder.setLights(Color.RED, 3000, 3000);
         }
-        if (pref.getBoolean(getString(R.string.pref_sound_key), true)) {
-            builder.setDefaults(NotificationCompat.DEFAULT_SOUND);
+        String notificationPref = pref.getString(getString(R.string.pref_notification_ringtone_key),
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString());
+        if (notificationPref.length() > 0) {
+            // The string for 'silent' is "" with a length of 0, therefore a sound has to be set for
+            // lengths higher than that
+            builder.setSound(Uri.parse(notificationPref));
         }
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

@@ -8,7 +8,7 @@
     <string name="pref_refresh_key" translatable="false">pref_refresh</string>
     <string name="pref_refresh_time_key" translatable="false">pref_refresh_time</string>
     <string name="pref_reminder_offset_key" translatable="false">pref_reminder_offset</string>
-    <string name="pref_sound_key" translatable="false">pref_sound</string>
+    <string name="pref_notification_ringtone_key" translatable="false">pref_notification_ringtone</string>
     <string name="pref_version_upgraded" translatable="false">pref_version_13</string>
 
     <!-- Localized Start -->
@@ -38,8 +38,9 @@
     <string name="pref_refresh_time_120minutes">2 hours</string>
     <string name="pref_refresh_time_summary">Reload period: %s</string> <!-- %s will be filled by the value name -->
     <string name="pref_reminder_offset_picker_hint">minutes</string>
-    <string name="pref_sound">Sound</string>
-    <string name="pref_sound_summary">Play sound on alarm for upcoming show</string>
+    <string name="pref_notification_ringtone">Sound</string>
+    <string name="pref_notification_ringtone_summary">Play sound on alarm for upcoming show: %s</string>
+    <string name="pref_notification_ringtone_none">None</string>
     <string name="error_download_failed">Error: Download failed</string>
     <string name="error_data_format">Error: Reading the calendar failed</string>
     <string name="error_reminder_before_now">Reminder time is in the past. Please check your reminder time settings.</string>

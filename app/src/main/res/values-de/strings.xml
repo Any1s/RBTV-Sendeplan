@@ -30,8 +30,8 @@
     <string name="pref_reminder_offset_picker_hint">Minuten</string>
     <string name="pref_reminder_offset_summary">%d Minuten vor Sendungsstart erinnern</string>
     <string name="pref_refresh_time_summary">Aktualisiere alle %s</string>
-    <string name="pref_sound">Ton</string>
-    <string name="pref_sound_summary">Ton abspielen, wenn eine markierte Show startet</string>
+    <string name="pref_notification_ringtone">Ton</string>
+    <string name="pref_notification_ringtone_summary">Ton abspielen, wenn eine markierte Show startet: %s</string>
     <string name="reminder_add_dialog_all">Für diese und alle zukünftigen Episoden</string>
     <string name="reminder_add_dialog_single">Nur für diese Episode</string>
     <string name="reminder_add_dialog_title">Erinnerung hinzufügen</string>
@@ -41,4 +41,5 @@
     <string name="one_day_schedule_widget_empty_view_text">Keine Sendeplandaten</string>
     <string name="one_day_schedule_widget_header">RBTV 24h Überblick</string>
     <string name="notification_open_twitch_action_text">Twitch öffnen</string>
+    <string name="pref_notification_ringtone_none">Keinen</string>
 </resources>

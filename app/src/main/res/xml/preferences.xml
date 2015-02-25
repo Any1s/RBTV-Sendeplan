@@ -22,11 +22,14 @@
         android:title="@string/pref_led"
         android:summary="@string/pref_led_summary"
         android:defaultValue="true"/>
-    <CheckBoxPreference
-        android:key="@string/pref_sound_key"
-        android:title="@string/pref_sound"
-        android:summary="@string/pref_sound_summary"
-        android:defaultValue="true"/>
+    <RingtonePreference
+        android:key="@string/pref_notification_ringtone_key"
+        android:title="@string/pref_notification_ringtone"
+        android:summary="@string/pref_notification_ringtone_summary"
+        android:ringtoneType="notification"
+        android:showDefault="true"
+        android:showSilent="true"
+        android:defaultValue="content://settings/system/notification_sound"/>
     <CheckBoxPreference
         android:key="@string/pref_refresh_key"
         android:title="@string/pref_refresh"
