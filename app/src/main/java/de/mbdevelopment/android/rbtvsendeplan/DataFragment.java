@@ -137,6 +137,11 @@ public class DataFragment extends Fragment implements
     }
 
     /**
+     * Exception that can be thrown if parsing data failed
+     */
+    public class ParseException extends Exception {}
+
+    /**
      * Writes the event groups to internal storage
      */
     private class FileWriter implements Runnable {
@@ -363,9 +368,12 @@ public class DataFragment extends Fragment implements
      * data structure.
      * @param events Array of events
      * @return An array containing the groups of events
-     * @throws JSONException
+     * @throws org.json.JSONException if there is an unexpected error in the calendar JSON
+     * @throws de.mbdevelopment.android.rbtvsendeplan.DataFragment.ParseException if parsing the
+     * event data failed
      */
-    private SerializableSparseArray<EventGroup> groupEvents (JSONArray events) throws JSONException {
+    private SerializableSparseArray<EventGroup> groupEvents (JSONArray events) throws JSONException,
+            ParseException {
         SerializableSparseArray<EventGroup> eventGroups = new SerializableSparseArray<>();
         Calendar curDate = null;
         ArrayList<Event> curList = new ArrayList<>();
@@ -375,6 +383,12 @@ public class DataFragment extends Fragment implements
                     .getJSONObject("start"));
             Calendar eventEndDate = Utils.getCalendarFromJSON(events.getJSONObject(i)
                     .getJSONObject("end"));
+
+            if (eventStartDate == null || eventEndDate == null) {
+                // Error retrieving the dates, abort
+                throw new ParseException();
+            }
+
             if (curDate == null) {
                 curDate = eventStartDate;
                 curList = new ArrayList<>();
@@ -507,7 +521,7 @@ public class DataFragment extends Fragment implements
                 JSONArray events = json.getJSONArray("items");
                 setEventGroups(groupEvents(events));
                 if (callbacks != null) callbacks.onDataLoaded(eventGroups);
-            } catch (JSONException e) {
+            } catch (ParseException | JSONException e) {
                 Toast.makeText(context, context.getString(R.string.error_data_format),
                         Toast.LENGTH_SHORT).show();
             }

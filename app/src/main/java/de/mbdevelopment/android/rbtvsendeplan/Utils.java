@@ -21,8 +21,7 @@ public class Utils {
         try {
             ret.setTime(sdf.parse(event.getString("dateTime")));
         } catch (Exception e) {
-            // TODO w00000000000000t
-            e.printStackTrace();
+            // Date could not be read
             return null;
         }
 
