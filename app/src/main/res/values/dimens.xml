@@ -11,7 +11,7 @@
     <dimen name="event_list_group_padding_right">10dp</dimen>
     <dimen name="event_list_group_padding_top">5dp</dimen>
     <dimen name="event_list_group_padding_bottom">5dp</dimen>
-    <dimen name="event_list_type_width">34dp</dimen>
+    <dimen name="event_list_type_size">26sp</dimen>
     <dimen name="event_list_date_width">52dp</dimen>
     <dimen name="event_list_group_indicator_width">40dp</dimen>
     <dimen name="event_list_reminder_size">27sp</dimen>
@@ -31,7 +31,7 @@
     <dimen name="widget_event_list_padding_right">8dp</dimen>
     <dimen name="widget_event_list_padding_top">0dp</dimen>
     <dimen name="widget_event_list_padding_bottom">5dp</dimen>
-    <dimen name="widget_event_list_type_width">34dp</dimen>
+    <dimen name="widget_event_list_type_size">26sp</dimen>
     <dimen name="widget_event_list_date_width">52sp</dimen>
     <dimen name="widget_event_list_reminder_size">27sp</dimen>
     <dimen name="widget_event_list_reminder_padding_left">4dp</dimen>

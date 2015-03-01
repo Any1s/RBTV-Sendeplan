@@ -18,8 +18,9 @@
         android:gravity="right|top"/>
     <ImageView
         android:id="@+id/widget_event_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/widget_event_list_type_size"
+        android:layout_height="@dimen/widget_event_list_type_size"
+        android:scaleType="fitCenter"
         android:paddingTop="@dimen/widget_event_list_type_padding_top"
         android:paddingBottom="@dimen/widget_event_list_type_padding_bottom"
         android:paddingLeft="@dimen/widget_event_list_type_padding_left"
