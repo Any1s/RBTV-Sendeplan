@@ -140,7 +140,7 @@ public class ReminderService extends Service
     /**
      * Bitmap that holds the Android Wear Fullscreen background image
      */
-    Bitmap wear_bg;
+    private Bitmap wearBg;
 
     /**
      * Binder class that grants access to this service. The only method will return a reference to
@@ -204,7 +204,7 @@ public class ReminderService extends Service
         preferences.registerOnSharedPreferenceChangeListener(this);
 
         // Android Wear fullscreen background image from drawable
-        wear_bg = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+        wearBg = BitmapFactory.decodeResource(getApplicationContext().getResources(),
                 R.drawable.bg_wear);
 
         // Restore counter as not to duplicate any alarm IDs
@@ -270,7 +270,7 @@ public class ReminderService extends Service
         // Android Wear specific notification settings
         NotificationCompat.WearableExtender wearableExtender =
                 new NotificationCompat.WearableExtender()
-                        .setBackground(wear_bg);
+                        .setBackground(wearBg);
 
         PendingIntent clickIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
