@@ -26,13 +26,13 @@
     <dimen name="pref_reminder_offset_picker_hint_text_size">16sp</dimen>
     <dimen name="one_day_schedule_widget_empty_view_text_size">20sp</dimen>
     <dimen name="one_day_schedule_widget_header_text_size">20sp</dimen>
-    <dimen name="one_day_schedule_widget_header_padding">8sp</dimen>
+    <dimen name="one_day_schedule_widget_header_padding">8dp</dimen>
     <dimen name="widget_event_list_padding_left">0dp</dimen>
     <dimen name="widget_event_list_padding_right">8dp</dimen>
     <dimen name="widget_event_list_padding_top">0dp</dimen>
     <dimen name="widget_event_list_padding_bottom">5dp</dimen>
     <dimen name="widget_event_list_type_width">34dp</dimen>
-    <dimen name="widget_event_list_date_width">52dp</dimen>
+    <dimen name="widget_event_list_date_width">52sp</dimen>
     <dimen name="widget_event_list_reminder_size">27sp</dimen>
     <dimen name="widget_event_list_reminder_padding_left">4dp</dimen>
     <dimen name="widget_event_list_title_margin_left">4dp</dimen>
