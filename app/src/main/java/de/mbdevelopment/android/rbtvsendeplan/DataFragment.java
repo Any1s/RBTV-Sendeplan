@@ -39,6 +39,7 @@ import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.locks.Lock;
 
 public class DataFragment extends Fragment implements
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -151,14 +152,21 @@ public class DataFragment extends Fragment implements
             if (activity == null) return;
 
             // Write
+            Lock lock = null;
             try {
                 FileOutputStream fo = activity.openFileOutput(ON_DISK_FILE, Context.MODE_PRIVATE);
+                lock = FileLockHolder.getInstance().getWriteLock(ON_DISK_FILE);
+                lock.lock();
                 BufferedOutputStream bo = new BufferedOutputStream(fo);
                 ObjectOutput oo = new ObjectOutputStream(bo);
                 oo.writeObject(eventGroups);
                 oo.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (lock != null) {
+                    lock.unlock();
+                }
             }
 
             // Loading has finished
@@ -175,8 +183,11 @@ public class DataFragment extends Fragment implements
             if (activity == null) return;
 
             // Read
+            Lock lock = null;
             try {
                 FileInputStream fi = activity.openFileInput(ON_DISK_FILE);
+                lock = FileLockHolder.getInstance().getReadLock(ON_DISK_FILE);
+                lock.lock();
                 BufferedInputStream bi = new BufferedInputStream(fi);
                 ObjectInput oi = new ObjectInputStream(bi);
                 eventGroups = (SerializableSparseArray<EventGroup>) oi.readObject();
@@ -185,6 +196,10 @@ public class DataFragment extends Fragment implements
                 // No backup in storage
             } catch (ClassNotFoundException | IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (lock != null) {
+                    lock.unlock();
+                }
             }
 
             if (callbacks != null && eventGroups != null) callbacks.onDataLoaded(eventGroups);

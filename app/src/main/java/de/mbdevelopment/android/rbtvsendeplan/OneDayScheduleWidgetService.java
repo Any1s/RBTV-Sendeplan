@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
 
 public class OneDayScheduleWidgetService extends RemoteViewsService {
 
@@ -140,9 +141,13 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
         // Get data from storage
         SerializableSparseArray<EventGroup> eventGroups = null;
         HashMap<Event, Integer> reminders = null;
+        Lock eventLock = null;
+        Lock reminderLock = null;
         try {
             // Schedule
             FileInputStream fi = context.openFileInput(DataFragment.ON_DISK_FILE);
+            eventLock = FileLockHolder.getInstance().getReadLock(DataFragment.ON_DISK_FILE);
+            eventLock.lock();
             BufferedInputStream bi = new BufferedInputStream(fi);
             ObjectInput oi = new ObjectInputStream(bi);
             eventGroups = (SerializableSparseArray<EventGroup>) oi.readObject();
@@ -150,6 +155,8 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
 
             // Reminders
             fi = context.openFileInput(ReminderService.BACKUP_EVENTS_FILENAME);
+            reminderLock = FileLockHolder.getInstance().getReadLock(ReminderService.BACKUP_EVENTS_FILENAME);
+            reminderLock.lock();
             bi = new BufferedInputStream(fi);
             oi = new ObjectInputStream(bi);
             reminders = (HashMap<Event, Integer>) oi.readObject();
@@ -159,6 +166,13 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
             // No backup yet means no data yet
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
+        } finally {
+            if (eventLock != null) {
+                eventLock.unlock();
+            }
+            if (reminderLock != null) {
+                reminderLock.unlock();
+            }
         }
 
         if (eventGroups != null) {

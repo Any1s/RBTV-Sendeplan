@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Manages reminders for events. Always start this Service by calling startService() before binding
@@ -174,9 +175,12 @@ public class ReminderService extends Service
         @Override
         public void run() {
             while (true) {
+                Lock lock = null;
                 try{
                     currentElement = queue.take();
                     FileOutputStream fo = openFileOutput(currentElement.filename, MODE_PRIVATE);
+                    lock = FileLockHolder.getInstance().getWriteLock(currentElement.filename);
+                    lock.lock();
                     BufferedOutputStream bo = new BufferedOutputStream(fo);
                     ObjectOutput oo = new ObjectOutputStream(bo);
                     oo.writeObject(currentElement.element);
@@ -188,6 +192,10 @@ public class ReminderService extends Service
                     return;
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    if (lock != null) {
+                        lock.unlock();
+                    }
                 }
             }
         }
@@ -607,8 +615,11 @@ public class ReminderService extends Service
     @SuppressWarnings("unchecked") // Deserializing produces a compiler warning
     private HashMap<Event, Integer> readEventsBackup() {
         HashMap<Event, Integer> events = null;
+        Lock lock = null;
         try {
             FileInputStream fi = openFileInput(BACKUP_EVENTS_FILENAME);
+            lock = FileLockHolder.getInstance().getReadLock(BACKUP_EVENTS_FILENAME);
+            lock.lock();
             BufferedInputStream bi = new BufferedInputStream(fi);
             ObjectInput oi = new ObjectInputStream(bi);
             events = (HashMap<Event, Integer>) oi.readObject();
@@ -617,6 +628,10 @@ public class ReminderService extends Service
             // No backup in storage
         } catch(ClassNotFoundException | IOException e) {
             e.printStackTrace();
+        } finally {
+            if (lock != null) {
+                lock.unlock();
+            }
         }
 
         return events;
@@ -629,8 +644,11 @@ public class ReminderService extends Service
     @SuppressWarnings("unchecked") // Deserializing produces a compiler warning
     private List<String> readRecurringBackup() {
         List<String> recurring = null;
+        Lock lock = null;
         try {
             FileInputStream fi = openFileInput(BACKUP_RECURRING_FILENAME);
+            lock = FileLockHolder.getInstance().getReadLock(BACKUP_RECURRING_FILENAME);
+            lock.lock();
             BufferedInputStream bi = new BufferedInputStream(fi);
             ObjectInput oi = new ObjectInputStream(bi);
             recurring = (List<String>) oi.readObject();
@@ -639,6 +657,10 @@ public class ReminderService extends Service
             // No backup in storage
         } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
+        } finally {
+            if (lock != null) {
+                lock.unlock();
+            }
         }
 
         return recurring;
