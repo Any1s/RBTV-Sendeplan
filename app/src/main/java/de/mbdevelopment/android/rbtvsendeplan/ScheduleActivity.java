@@ -1,25 +1,21 @@
 package de.mbdevelopment.android.rbtvsendeplan;
 
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.FragmentManager;
-import android.app.PendingIntent;
-import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,14 +27,16 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Main activity containing the schedule.
  */
-public class ScheduleActivity extends Activity implements DataFragment.Callbacks,
-        ExpandableListView.OnChildClickListener, AdapterView.OnItemLongClickListener,
-        ExpandableEventListAdapter.ReminderCallbacks, AddReminderDialogFragment.SelectionListener,
-        DeleteReminderDialogFragment.SelectionListener {
+public class ScheduleActivity extends Activity implements ExpandableListView.OnChildClickListener,
+        AdapterView.OnItemLongClickListener, ExpandableEventListAdapter.ReminderCallbacks,
+        AddReminderDialogFragment.SelectionListener, DeleteReminderDialogFragment.SelectionListener,
+        Observer {
 
     /**
      * Intent key for the messenger extra
@@ -49,11 +47,6 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
      * URL to the RocketBeans.TV Twitch channel
      */
     public static final String TWITCH_URL = "http://twitch.tv/rocketbeanstv";
-
-    /**
-     * The fragment used to retrieve and store data
-     */
-    private DataFragment dataFragment;
 
     /**
      * The expandable list used to display the data
@@ -86,6 +79,16 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
     private boolean dataChanged = false;
 
     /**
+     * Data source
+     */
+    private DataHolder dataHolder;
+
+    /**
+     * Broadcast receiver for status messages from services
+     */
+    private BroadcastReceiver broadcastReceiver;
+
+    /**
      * Connection to the reminder service
      */
     private class ReminderConnection implements ServiceConnection {
@@ -111,7 +114,7 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
         public void handleMessage(Message msg) {
             if (msg.arg1 == ReminderService.FLAG_DATA_CHANGED) {
                 updateListView();
-                notifyWidgets();
+                OneDayScheduleWidgetProvider.notifyWidgets(getApplicationContext());
             }
         }
     }
@@ -124,27 +127,57 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
         // Get Preferences
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-        // Data Fragment
-        FragmentManager fm = getFragmentManager();
-        dataFragment = (DataFragment) fm.findFragmentByTag(DataFragment.TAG);
-        if (dataFragment == null) {
-            dataFragment = new DataFragment();
-            fm.beginTransaction().add(dataFragment, DataFragment.TAG).commit();
-        }
+        // Broadcast receiver
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int type = intent.getIntExtra(DataService.EXTRA_STATUS, 0);
+                switch (type) {
+                    case DataService.STATUS_LOADING_STARTED:
+                        findViewById(R.id.download_indicator).setVisibility(View.VISIBLE);
+                        break;
+                    case DataService.STATUS_LOADING_FINISHED:
+                        findViewById(R.id.download_indicator).setVisibility(View.GONE);
+                        break;
+                }
+            }
+        };
 
-        // Check for cached data
-        if (dataFragment.getEventGroups() == null
-                || !preferences.getBoolean(getString(R.string.pref_version_upgraded), false)) {
+        // Data source
+        dataHolder = DataHolder.getInstance();
+        // Observe data source
+        dataHolder.addObserver(this);
+
+        if (!preferences.getBoolean(getString(R.string.pref_version_upgraded), false)) {
+            // Version update
+            loadCalendarData(true);
+        } else if (dataHolder.getEventGroups() == null) {
+            // Check for cached data
             loadCalendarData(false);
         } else {
             // Do not notify
-            onDataLoaded(dataFragment.getEventGroups(), false);
+            onDataLoaded(dataHolder.getEventGroups());
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        dataHolder.deleteObserver(this);
+        super.onDestroy();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        // Register receiver
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
+                new IntentFilter(DataService.BROADCAST_STATUS_UPDATE));
+
+        // Check if loading indicator is still needed and hide otherwise
+        if (!preferences.getBoolean(getString(R.string.pref_is_loading), false)) {
+            findViewById(R.id.download_indicator).setVisibility(View.GONE);
+        }
+
         // Start service to run autonomously and pass a messenger to receive messages from it
         Intent serviceIntent = new Intent(this, ReminderService.class);
         serviceIntent.putExtra(EXTRA_MESSENGER, new Messenger(messageHandler));
@@ -156,17 +189,16 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
     }
 
     @Override
-    public void onDataLoaded(final SparseArray<EventGroup> eventGroups) {
-        onDataLoaded(eventGroups, true);
+    protected void onStop() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        super.onStop();
     }
 
     /**
-     * Wrapper function around {@link #onDataLoaded(android.util.SparseArray)} that additionally
-     * updates the widget(s).
-     * @param eventGroups See {@link DataFragment.Callbacks#onDataLoaded(android.util.SparseArray)}
-     * @param updateWidget Set this to true if you want the widget(s) to get updated, false else
+     * Updates activity components with new data
+     * @param eventGroups The data that has been loaded
      */
-    public void onDataLoaded(final SparseArray<EventGroup> eventGroups, final boolean updateWidget)
+    public void onDataLoaded(final SparseArray<EventGroup> eventGroups)
     {
         runOnUiThread(new Runnable() {
             @Override
@@ -198,10 +230,8 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
                 if (reminderService == null) {
                     dataChanged = true;
                 } else {
-                    reminderService.updateReminderDates(dataFragment.getEventGroups());
+                    reminderService.updateReminderDates(dataHolder.getEventGroups());
                 }
-
-                if (updateWidget) notifyWidgets();
             }
         });
     }
@@ -222,7 +252,7 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
 
         switch (id) {
             case R.id.action_reload:
-                loadCalendarData(false);
+                loadCalendarData(true);
                 break;
             case R.id.action_settings:
                 Intent intent = new Intent(this, SettingsActivity.class);
@@ -235,32 +265,22 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
 
     /**
      * Loads calendar data if all constraints are met
-     * @param quiet True if the no error messages should be displayed
+     * @param force True if downloading new data should be forced, false else
      */
-    public void loadCalendarData(boolean quiet) {
-        // Check for WiFi constraint preference
-        if (preferences.getBoolean(getString(R.string.pref_wifi_key), true)) {
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-            NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            if (!wifi.isConnected()) {
-                if (!quiet) {
-                    Toast.makeText(this, getString(R.string.wifi_not_connected), Toast.LENGTH_LONG)
-                            .show();
-                }
-                return;
-            }
+    public void loadCalendarData(boolean force) {
+        Intent dataIntent = new Intent(getApplicationContext(), DataService.class);
+        if (force) {
+            dataIntent.putExtra(DataService.EXTRA_FORCE_DOWNLOAD, true);
+        } else {
+            dataIntent.putExtra(DataService.EXTRA_LOAD_DATA, true);
         }
-
-        // Actually load data
-        if (dataFragment != null) {
-            dataFragment.loadCalendarData(getApplicationContext());
-        }
+        startService(dataIntent);
     }
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
                                 int childPosition, long id) {
-        Event event = dataFragment.getEventGroups().get(groupPosition).getEvents()
+        Event event = dataHolder.getEventGroups().get(groupPosition).getEvents()
                 .get(childPosition);
         if (event.isCurrentlyRunning()) {
             openTwitchChannel();
@@ -294,7 +314,7 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
                 ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
             int groupPosition = ExpandableListView.getPackedPositionGroup(packedPosition);
             int childPosition = ExpandableListView.getPackedPositionChild(packedPosition);
-            Event event = dataFragment.getEventGroups().get(groupPosition).getEvents()
+            Event event = dataHolder.getEventGroups().get(groupPosition).getEvents()
                     .get(childPosition);
             // The currently running event is selectable, so it has to be filtered here as well as
             // reminders that would be before the current time
@@ -351,7 +371,7 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
                 // Toggle only this instance
                 reminderService.toggleState(event);
                 updateListView();
-                notifyWidgets();
+                OneDayScheduleWidgetProvider.notifyWidgets(getApplicationContext());
             } else {
                 AddReminderDialogFragment dialogFragment = new AddReminderDialogFragment();
                 Bundle args = new Bundle();
@@ -363,7 +383,7 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
             // Single time events can be toggled directly
             reminderService.toggleState(event);
             updateListView();
-            notifyWidgets();
+            OneDayScheduleWidgetProvider.notifyWidgets(getApplicationContext());
         }
     }
 
@@ -372,13 +392,13 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
         reminderService.toggleState(event);
 
         updateListView();
-        notifyWidgets();
+        OneDayScheduleWidgetProvider.notifyWidgets(getApplicationContext());
     }
 
     @Override
     public void onAllSelected(Event event) {
         // Compile list of all available events
-        SerializableSparseArray<EventGroup> groupList = dataFragment.getEventGroups();
+        SerializableSparseArray<EventGroup> groupList = dataHolder.getEventGroups();
         List<Event> eventList = new ArrayList<>();
         for (int i = 0; i < groupList.size(); i++) {
             eventList.addAll(groupList.get(i).getEvents());
@@ -388,7 +408,7 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
         reminderService.addRecurringReminder(event, eventList);
 
         updateListView();
-        notifyWidgets();
+        OneDayScheduleWidgetProvider.notifyWidgets(getApplicationContext());
     }
 
     @Override
@@ -396,7 +416,7 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
         reminderService.deleteRecurringReminder(event);
 
         updateListView();
-        notifyWidgets();
+        OneDayScheduleWidgetProvider.notifyWidgets(getApplicationContext());
     }
 
     @Override
@@ -414,9 +434,9 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
                 reminderService.toggleState(e);
             }
             // Update if data has changed
-            reminderService.updateReminderDates(dataFragment.getEventGroups());
+            reminderService.updateReminderDates(dataHolder.getEventGroups());
         } else if (dataChanged) {
-            reminderService.updateReminderDates(dataFragment.getEventGroups());
+            reminderService.updateReminderDates(dataHolder.getEventGroups());
             dataChanged = false;
         }
         updateListView();
@@ -443,29 +463,9 @@ public class ScheduleActivity extends Activity implements DataFragment.Callbacks
     }
 
     @Override
-    public void refreshCalendarData() {
-        loadCalendarData(true);
-    }
-
-    /**
-     * Notifies all widgets of changed data
-     */
-    private void notifyWidgets() {
-        int[] ids = AppWidgetManager.getInstance(getApplicationContext())
-                .getAppWidgetIds(new ComponentName(getApplication(),
-                        OneDayScheduleWidgetProvider.class));
-        Intent widgetIntent = new Intent(getApplicationContext(),
-                OneDayScheduleWidgetProvider.class);
-        widgetIntent.setAction(OneDayScheduleWidgetProvider.UPDATE_ACTION);
-        widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-        PendingIntent pendingWidgetIntent = PendingIntent.getBroadcast(getApplicationContext(),
-                OneDayScheduleWidgetProvider.UPDATE_INTENT_ID, widgetIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        // Schedule the update with two seconds delay to bundle multiple data changes to avoid
-        // updating the widget too often in a short time frame.
-        AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        am.set(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime() + 2000,
-                pendingWidgetIntent);
+    public void update(Observable observable, Object data) {
+        if (observable instanceof DataHolder) {
+            onDataLoaded(((DataHolder) observable).getEventGroups());
+        }
     }
 }

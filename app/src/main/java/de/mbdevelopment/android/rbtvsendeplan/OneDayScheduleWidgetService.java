@@ -145,8 +145,8 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
         Lock reminderLock = null;
         try {
             // Schedule
-            FileInputStream fi = context.openFileInput(DataFragment.ON_DISK_FILE);
-            eventLock = FileLockHolder.getInstance().getReadLock(DataFragment.ON_DISK_FILE);
+            FileInputStream fi = context.openFileInput(DataService.ON_DISK_FILE);
+            eventLock = FileLockHolder.getInstance().getReadLock(DataService.ON_DISK_FILE);
             eventLock.lock();
             BufferedInputStream bi = new BufferedInputStream(fi);
             ObjectInput oi = new ObjectInputStream(bi);

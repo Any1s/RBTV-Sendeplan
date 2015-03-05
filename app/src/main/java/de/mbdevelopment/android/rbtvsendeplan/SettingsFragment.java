@@ -2,6 +2,7 @@ package de.mbdevelopment.android.rbtvsendeplan;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -73,7 +74,9 @@ public class SettingsFragment extends PreferenceFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        updatePreferenceSummary(sharedPreferences, findPreference(key));
+        Preference preference = findPreference(key);
+        updatePreferenceSummary(sharedPreferences, preference);
+        notifyDataService(preference);
     }
 
     /**
@@ -117,6 +120,22 @@ public class SettingsFragment extends PreferenceFragment
             }
             ringtonePreference.setSummary(String.format(
                     getString(R.string.pref_notification_ringtone_summary), name));
+        }
+    }
+
+    /**
+     * Notifies the {@link DataService} of relevant preference changes.
+     * @param preference Changed preference
+     */
+    private void notifyDataService(Preference preference) {
+        if (preference == null) return;
+
+        String key = preference.getKey();
+        if (key.equals(getString(R.string.pref_refresh_key)) ||
+                key.equals(getString(R.string.pref_refresh_time_key))) {
+            Intent dataIntent = new Intent(context, DataService.class);
+            dataIntent.setAction(DataService.ACTION_UPDATE_PREFERENCES);
+            context.startService(dataIntent);
         }
     }
 }

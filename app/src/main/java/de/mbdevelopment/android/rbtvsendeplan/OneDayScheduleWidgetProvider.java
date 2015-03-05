@@ -1,11 +1,14 @@
 package de.mbdevelopment.android.rbtvsendeplan;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.widget.RemoteViews;
 
@@ -66,5 +69,24 @@ public class OneDayScheduleWidgetProvider extends AppWidgetProvider {
         }
 
         super.onUpdate(context, appWidgetManager, appWidgetIds);
+    }
+
+    /**
+     * Notifies all widgets of changed data
+     */
+    public static void notifyWidgets(Context context) {
+        int[] ids = AppWidgetManager.getInstance(context)
+                .getAppWidgetIds(new ComponentName(context, OneDayScheduleWidgetProvider.class));
+        Intent widgetIntent = new Intent(context, OneDayScheduleWidgetProvider.class);
+        widgetIntent.setAction(UPDATE_ACTION);
+        widgetIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        PendingIntent pendingWidgetIntent = PendingIntent.getBroadcast(context, UPDATE_INTENT_ID,
+                widgetIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Schedule the update with two seconds delay to bundle multiple data changes to avoid
+        // updating the widget too often in a short time frame.
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + 2000,
+                pendingWidgetIntent);
     }
 }

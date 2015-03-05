@@ -29,6 +29,8 @@
         </activity>
         <service android:name="de.mbdevelopment.android.rbtvsendeplan.ReminderService"
             android:exported="false" />
+        <service android:name=".DataService"
+            android:exported="false" />
         <receiver android:name="de.mbdevelopment.android.rbtvsendeplan.DeviceBootedReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
