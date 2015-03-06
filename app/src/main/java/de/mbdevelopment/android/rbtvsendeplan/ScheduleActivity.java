@@ -24,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -66,7 +67,7 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
     /**
      * Handler used to communicate with the reminder service
      */
-    private final Handler messageHandler = new MessageHandler();
+    private Handler messageHandler;
 
     /**
      * Preferences
@@ -109,12 +110,19 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
     /**
      * Message handler class used to communicate with the reminder service
      */
-    private class MessageHandler extends Handler {
+    private static class MessageHandler extends Handler {
+        private final WeakReference<ScheduleActivity> mTarget;
+
+        public MessageHandler (ScheduleActivity target) {
+            mTarget = new WeakReference<>(target);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            if (msg.arg1 == ReminderService.FLAG_DATA_CHANGED) {
-                updateListView();
-                OneDayScheduleWidgetProvider.notifyWidgets(getApplicationContext());
+            ScheduleActivity target = mTarget.get();
+            if (target != null && msg.arg1 == ReminderService.FLAG_DATA_CHANGED) {
+                target.updateListView();
+                OneDayScheduleWidgetProvider.notifyWidgets(target.getApplicationContext());
             }
         }
     }
@@ -123,6 +131,9 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule);
+
+        // Set up handler for this instance
+        messageHandler = new MessageHandler(this);
 
         // Get Preferences
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
