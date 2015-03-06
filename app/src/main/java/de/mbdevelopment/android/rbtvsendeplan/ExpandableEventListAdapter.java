@@ -18,7 +18,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         EventHolder eventHolder = (EventHolder) rowView.getTag();
 
         Event event = eventGroups.get(groupPosition).getEvents().get(childPosition);
-        Drawable indicator = null;
+        Drawable indicator;
 
         // Type colors for the whole row
         Resources resources = rowView.getResources();
@@ -178,8 +178,8 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @return Formatted string
      */
     private String formatEventDate(Calendar date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        return sdf.format(date.getTime());
+        DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
+        return df.format(date.getTime());
     }
 
     @Override
@@ -225,8 +225,8 @@ public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @return Formatted date
      */
     private String formatGroupDate(Calendar date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd.MM.yyyy");
-        return sdf.format(date.getTime());
+        DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
+        return df.format(date.getTime());
     }
 
     @Override

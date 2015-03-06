@@ -20,7 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -68,11 +68,11 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
             return null;
         }
         Event event = eventList.get(position);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
         RemoteViews remoteViews = new RemoteViews(context.getPackageName()
                 ,R.layout.widget_event_row);
         remoteViews.setTextViewText(R.id.widget_event_date
-                ,sdf.format(event.getStartDate().getTime()));
+                ,df.format(event.getStartDate().getTime()));
 
         // Set background color and show type symbol
         int backgroundColor = R.color.default_background;
