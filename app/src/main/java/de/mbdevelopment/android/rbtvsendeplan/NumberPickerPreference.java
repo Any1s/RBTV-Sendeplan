@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.DialogPreference;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.NumberPicker;
@@ -22,7 +23,7 @@ public class NumberPickerPreference extends DialogPreference {
     /**
      * the default number
      */
-    private int defaultValue;
+    private final int defaultValue;
 
     /**
      * The number picker of this DialogPreference
@@ -49,7 +50,7 @@ public class NumberPickerPreference extends DialogPreference {
         }
 
         @Override
-        public void writeToParcel(Parcel dest, int flags) {
+        public void writeToParcel(@NonNull Parcel dest, int flags) {
             super.writeToParcel(dest, flags);
             // Write number
             dest.writeInt(value);
@@ -84,7 +85,7 @@ public class NumberPickerPreference extends DialogPreference {
     }
 
     @Override
-    protected void onBindDialogView(View view) {
+    protected void onBindDialogView(@NonNull View view) {
         super.onBindDialogView(view);
 
         // Configure NumberPicker

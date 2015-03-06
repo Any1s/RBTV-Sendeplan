@@ -3,7 +3,7 @@ package de.mbdevelopment.android.rbtvsendeplan;
 /**
  * Data type for backup queue elements containing on object an it's destination filename
  */
-public class BackupQueueElement {
+class BackupQueueElement {
 
     /**
      * The object to be backed up

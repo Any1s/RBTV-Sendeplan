@@ -17,8 +17,8 @@ public class SerializableSparseArray<E> extends SparseArray<E> implements Serial
 
     private void readObject(ObjectInputStream oi) throws IOException, ClassNotFoundException {
         Object[] data = (Object[]) oi.readObject();
-        for (int i = 0; i < data.length; i++) {
-            Object[] entry = (Object[]) data[i];
+        for (Object aData : data) {
+            Object[] entry = (Object[]) aData;
             this.append((Integer) entry[0], (E) entry[1]);
         }
     }

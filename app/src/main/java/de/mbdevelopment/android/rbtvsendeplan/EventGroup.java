@@ -14,7 +14,7 @@ public class EventGroup implements Serializable {
     /**
      * Day of all contained events
      */
-    private Calendar date;
+    private final Calendar date;
 
     /**
      * List of events in this group

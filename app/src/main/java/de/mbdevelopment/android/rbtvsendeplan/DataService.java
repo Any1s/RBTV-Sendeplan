@@ -100,7 +100,7 @@ public class DataService extends Service {
      * Use this as the intent id when calling this service to ensure that it is started only when
      * needed
      */
-    public static final int INTENT_ID = 0;
+    private static final int INTENT_ID = 0;
 
     /**
      * Indicates if the data is currently being loaded
@@ -120,7 +120,7 @@ public class DataService extends Service {
     /**
      * Exception that can be thrown if parsing data failed
      */
-    public class ParseException extends Exception {}
+    private class ParseException extends Exception {}
 
     /**
      * Writes the event groups to internal storage
@@ -554,7 +554,7 @@ public class DataService extends Service {
      * Sets loading state locally and in shared preferences
      * @param isLoading Loading state
      */
-    public void setLoading(boolean isLoading) {
+    private void setLoading(boolean isLoading) {
         prefs.edit().putBoolean(getString(R.string.pref_is_loading), isLoading).apply();
         this.isLoading = isLoading;
     }

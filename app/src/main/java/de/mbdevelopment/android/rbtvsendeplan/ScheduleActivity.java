@@ -61,7 +61,7 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
     /**
      * Buffers reminder toggle events until the service has been bound
      */
-    private List<Event> reminderToggleBuffer = new ArrayList<>();
+    private final List<Event> reminderToggleBuffer = new ArrayList<>();
 
     /**
      * Handler used to communicate with the reminder service
@@ -109,7 +109,7 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
     /**
      * Message handler class used to communicate with the reminder service
      */
-    public class MessageHandler extends Handler {
+    private class MessageHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
             if (msg.arg1 == ReminderService.FLAG_DATA_CHANGED) {
@@ -198,7 +198,7 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
      * Updates activity components with new data
      * @param eventGroups The data that has been loaded
      */
-    public void onDataLoaded(final SparseArray<EventGroup> eventGroups)
+    private void onDataLoaded(final SparseArray<EventGroup> eventGroups)
     {
         runOnUiThread(new Runnable() {
             @Override
@@ -267,7 +267,7 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
      * Loads calendar data if all constraints are met
      * @param force True if downloading new data should be forced, false else
      */
-    public void loadCalendarData(boolean force) {
+    private void loadCalendarData(boolean force) {
         Intent dataIntent = new Intent(getApplicationContext(), DataService.class);
         if (force) {
             dataIntent.putExtra(DataService.EXTRA_FORCE_DOWNLOAD, true);

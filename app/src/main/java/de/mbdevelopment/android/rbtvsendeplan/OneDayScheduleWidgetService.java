@@ -37,9 +37,9 @@ public class OneDayScheduleWidgetService extends RemoteViewsService {
 
 class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     private List<Event> eventList;
-    List<String> reminderList;
-    private Context context;
-    private int appwidgetId;
+    private List<String> reminderList;
+    private final Context context;
+    private final int appwidgetId;
 
     public OneDayScheduleRemoteViewsFactory(Context context, Intent intent) {
         this.context = context;

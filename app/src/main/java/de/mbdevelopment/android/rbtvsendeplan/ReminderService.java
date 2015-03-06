@@ -30,7 +30,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class ReminderService extends Service
     /**
      * Identifier string for the event id in {@link Intent} extras
      */
-    public static final String EXTRA_ID = "event_id";
+    private static final String EXTRA_ID = "event_id";
 
     /**
      * Signal to indicate a freshly booted system
@@ -86,12 +86,12 @@ public class ReminderService extends Service
     /**
      * Mapping to link {@link Event#id} and a corresponding reminder alarm Intent
      */
-    private Map<String, Integer> eventToIntentMap = new HashMap<>();
+    private final Map<String, Integer> eventToIntentMap = new HashMap<>();
 
     /**
      * Mapping to link {@link Event#id} and the corresponding {@link Event}
      */
-    private Map<String, Event> idToEventMap = new HashMap<>();
+    private final Map<String, Event> idToEventMap = new HashMap<>();
 
     /**
      * List of the recurringEventIds for which reminders are set for all instances of the event
@@ -126,7 +126,7 @@ public class ReminderService extends Service
     /**
      * Queue used to schedule event lists to be written to internal storage
      */
-    protected ArrayBlockingQueue<BackupQueueElement> writeQueue = new ArrayBlockingQueue<>(16);
+    private final ArrayBlockingQueue<BackupQueueElement> writeQueue = new ArrayBlockingQueue<>(16);
 
     /**
      * Thread used to write backup data
@@ -163,7 +163,7 @@ public class ReminderService extends Service
      */
     private class BackupWriter implements Runnable {
 
-        protected ArrayBlockingQueue<BackupQueueElement> queue;
+        private final ArrayBlockingQueue<BackupQueueElement> queue;
         private BackupQueueElement currentElement;
         private final Service service;
 
@@ -268,7 +268,7 @@ public class ReminderService extends Service
     private void handleAlarm(String id) {
         // Notification
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
         Intent intent = new Intent(this, ScheduleActivity.class);
 
         Uri twitch = Uri.parse(ScheduleActivity.TWITCH_URL);
@@ -286,7 +286,7 @@ public class ReminderService extends Service
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(idToEventMap.get(id).getTitle())
                 .setContentText(String.format(getString(R.string.reminder_text),
-                        sdf.format(idToEventMap.get(id).getStartDate().getTime())))
+                        df.format(idToEventMap.get(id).getStartDate().getTime())))
                 .setContentIntent(clickIntent)
                 .addAction(R.drawable.ic_play_circle_fill_white_36dp,
                         getString(R.string.notification_open_twitch_action_text),
@@ -450,7 +450,7 @@ public class ReminderService extends Service
     }
 
     /**
-     * Updates the reminder for an event identified by it's id if neccessary
+     * Updates the reminder for an event identified by it's id if necessary
      * @param event1 Event to be checked
      * @return true if a reminder has been changed, false else
      */

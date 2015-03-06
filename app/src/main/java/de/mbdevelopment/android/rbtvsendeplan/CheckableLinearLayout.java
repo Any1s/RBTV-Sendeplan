@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -115,7 +116,7 @@ public class CheckableLinearLayout extends LinearLayout implements Checkable {
 		}
 		
 		@Override
-		public void writeToParcel(Parcel out, int flags) {
+		public void writeToParcel(@NonNull Parcel out, int flags) {
 			super.writeToParcel(out, flags);
 			out.writeValue(checked);
 		}

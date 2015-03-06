@@ -25,16 +25,15 @@ import java.util.List;
 /**
  * Adapter to provide data for an {@link android.widget.ExpandableListView}.
  */
-public class ExpandableEventListAdapter extends BaseExpandableListAdapter {
+class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     private final SparseArray<EventGroup> eventGroups;
-    private LayoutInflater inflater;
-    private Activity activity;
-    private ReminderCallbacks callbacks;
-    private Drawable emptyDrawable = new ColorDrawable(Color.TRANSPARENT);
-
-    Typeface typeFace;
-    Typeface typeFaceLightItalic;
-    Typeface typeFaceBold;
+    private final LayoutInflater inflater;
+    private final Activity activity;
+    private final ReminderCallbacks callbacks;
+    private final Drawable emptyDrawable = new ColorDrawable(Color.TRANSPARENT);
+    private final Typeface typeFace;
+    private final Typeface typeFaceLightItalic;
+    private final Typeface typeFaceBold;
 
     /**
      * View Holder for the list entries, using the Holder Pattern.
