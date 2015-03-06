@@ -179,22 +179,22 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
             // Find shows to display. Display the current show, two before and 7 after. Maximum
             // Time difference is +/- one day.
             eventList = getCurrentEventList(eventGroups);
-            // Set update intent to the end of the currently running show if one is found
-            Event curEvent = findCurrentEvent(eventGroups);
-            if (curEvent != null) {
+            // Set update intent to the next date if one is found
+            Calendar nextDate = findNextDate(eventGroups);
+            if (nextDate != null) {
                 Intent updateIntent = new Intent(context, OneDayScheduleWidgetProvider.class);
                 updateIntent.setAction(OneDayScheduleWidgetProvider.UPDATE_ACTION);
                 int[] idExtra = {appwidgetId};
                 updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, idExtra);
-                PendingIntent pendingUpdateintent = PendingIntent.getBroadcast(context
+                PendingIntent pendingUpdateIntent = PendingIntent.getBroadcast(context
                         , OneDayScheduleWidgetProvider.UPDATE_INTENT_ID
                         , updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 // Schedule the update one second after the end of the currently running show and do
                 // not wake up the device by using RTC instead of RTC_WAKEUP.
                 AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 am.set(AlarmManager.RTC
-                        , curEvent.getEndDate().getTimeInMillis() + 1000
-                        , pendingUpdateintent);
+                        , nextDate.getTimeInMillis() + 1000
+                        , pendingUpdateIntent);
             }
         }
         
@@ -292,17 +292,22 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
     }
 
     /**
-     * Tries to find the currently running event
+     * Finds the next date suitable to trigger refreshing the widget. This can either be the end of
+     * the currently running show or the start of the next show.
      * @param eventGroups The grouped events the search will be based on
-     * @return The currently running event if one is found, null else
+     * @return The next date suitable to trigger refreshing the widget or null if none is found.
      */
-    private Event findCurrentEvent(SerializableSparseArray<EventGroup> eventGroups) {
+    private Calendar findNextDate(SerializableSparseArray<EventGroup> eventGroups) {
+        final Calendar now = Calendar.getInstance();
         EventGroup curGroup;
         for (int i = 0; i < eventGroups.size(); i++) {
             curGroup = eventGroups.get(i);
             for (Event e : curGroup.getEvents()) {
                 if (e.isCurrentlyRunning()) {
-                    return e;
+                    return e.getEndDate();
+                }
+                if (e.getStartDate().compareTo(now) == 1) {
+                    return e.getStartDate();
                 }
             }
         }
