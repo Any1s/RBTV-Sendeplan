@@ -301,7 +301,7 @@ public class DataService extends Service {
                         , (Calendar) eventEndDate.clone(), p.second, p.first, id, recurringId));
             }
         }
-        eventGroups.put(j++, new EventGroup(curDate, curList)); // Last group
+        eventGroups.put(j, new EventGroup(curDate, curList)); // Last group
 
         return eventGroups;
     }
