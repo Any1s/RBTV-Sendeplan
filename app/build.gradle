@@ -8,8 +8,8 @@ android {
         applicationId "de.mbdevelopment.android.rbtvsendeplan"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 19
-        versionName "0.11"
+        versionCode 20
+        versionName "0.12"
     }
     buildTypes {
         release {
