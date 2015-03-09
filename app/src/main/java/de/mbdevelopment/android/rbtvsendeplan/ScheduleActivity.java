@@ -142,15 +142,35 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int type = intent.getIntExtra(DataService.EXTRA_STATUS, 0);
-                switch (type) {
-                    case DataService.STATUS_LOADING_STARTED:
-                        findViewById(R.id.download_indicator).setVisibility(View.VISIBLE);
+                String action = intent.getAction();
+                if (action == null) return;
+
+                switch (action) {
+                    case DataService.BROADCAST_STATUS_UPDATE:
+                        int type = intent.getIntExtra(DataService.EXTRA_STATUS, 0);
+                        switch (type) {
+                            case DataService.STATUS_LOADING_STARTED:
+                                findViewById(R.id.download_indicator).setVisibility(View.VISIBLE);
+                                break;
+                            case DataService.STATUS_LOADING_FINISHED:
+                                findViewById(R.id.download_indicator).setVisibility(View.GONE);
+                                break;
+                        }
                         break;
-                    case DataService.STATUS_LOADING_FINISHED:
-                        findViewById(R.id.download_indicator).setVisibility(View.GONE);
+                    case DataService.BROADCAST_NO_WIFI:
+                        Toast.makeText(context, context.getString(R.string.wifi_not_connected),
+                                Toast.LENGTH_LONG).show();
+                        break;
+                    case DataService.BROADCAST_DOWNLOAD_FAILED:
+                        Toast.makeText(context, context.getString(R.string.error_download_failed),
+                                Toast.LENGTH_LONG).show();
+                        break;
+                    case DataService.BROADCAST_FORMAT_ERROR:
+                        Toast.makeText(context, context.getString(R.string.error_data_format),
+                                Toast.LENGTH_LONG).show();
                         break;
                 }
+
             }
         };
 
@@ -181,8 +201,12 @@ public class ScheduleActivity extends Activity implements ExpandableListView.OnC
     protected void onStart() {
         super.onStart();
         // Register receiver
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
-                new IntentFilter(DataService.BROADCAST_STATUS_UPDATE));
+        IntentFilter actionFilter = new IntentFilter();
+        actionFilter.addAction(DataService.BROADCAST_STATUS_UPDATE);
+        actionFilter.addAction(DataService.BROADCAST_NO_WIFI);
+        actionFilter.addAction(DataService.BROADCAST_DOWNLOAD_FAILED);
+        actionFilter.addAction(DataService.BROADCAST_FORMAT_ERROR);
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, actionFilter);
 
         // Check if loading indicator is still needed and hide otherwise
         if (!preferences.getBoolean(getString(R.string.pref_is_loading), false)) {

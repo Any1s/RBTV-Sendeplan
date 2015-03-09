@@ -14,7 +14,6 @@ import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Pair;
-import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -77,9 +76,24 @@ public class DataService extends Service {
     public static final String ACTION_UPDATE_PREFERENCES = "update_prefs";
 
     /**
-     * Broadcast type signaling a loading status update
+     * Broadcast type signaling a loading status update. To be used with a {@link #EXTRA_STATUS}
      */
-    public static final String BROADCAST_STATUS_UPDATE = "loading_status";
+    public static final String BROADCAST_STATUS_UPDATE = "de.mbdevelopment.android.rbtvsendeplan.STATUS_UPDATE";
+
+    /**
+     * Broadcast type signaling that the wifi constraint could not be met
+     */
+    public static final String BROADCAST_NO_WIFI = "de.mbdevelopment.android.rbtvsendeplan.NO_WIFI";
+
+    /**
+     * Broadcast type signaling a failed download
+     */
+    public static final String BROADCAST_DOWNLOAD_FAILED = "de.mbdevelopment.android.rbtvsendeplan.DOWNLOAD_FAILED";
+
+    /**
+     * Broadcast type signaling a calendar format error
+     */
+    public static final String BROADCAST_FORMAT_ERROR = "de.mbdevelopment.android.rbtvsendeplan.FORMAT_ERROR";
 
     /**
      * Intent extra key for broadcast status updates
@@ -190,7 +204,7 @@ public class DataService extends Service {
      * Downloads the calendar as json via the Google Calendar API, groups the entries by day and
      * passes the result to the {@link de.mbdevelopment.android.rbtvsendeplan.DataHolder}.
      */
-    private class CalendarDownloadTask extends AsyncTask<String, String, String> {
+    private class CalendarDownloadTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -210,20 +224,18 @@ public class DataService extends Service {
                         builder.append(line);
                     }
                 } else {
-                    publishProgress(getString(R.string.error_download_failed));
+                    publishProgress();
                 }
             } catch (IOException e) {
-                publishProgress(getString(R.string.error_download_failed));
+                publishProgress();
             }
             return builder.toString();
         }
 
         @Override
-        protected void onProgressUpdate(String... values) {
+        protected void onProgressUpdate(Void... values) {
             if (values != null) {
-                for(String v : values) {
-                    Toast.makeText(DataService.this, v, Toast.LENGTH_SHORT).show();
-                }
+                broadcast(BROADCAST_DOWNLOAD_FAILED);
             }
         }
 
@@ -235,8 +247,7 @@ public class DataService extends Service {
                 JSONArray events = json.getJSONArray("items");
                 eventGroups = groupEvents(events);
             } catch (ParseException | JSONException e) {
-                Toast.makeText(DataService.this, getString(R.string.error_data_format),
-                        Toast.LENGTH_SHORT).show();
+                broadcast(BROADCAST_FORMAT_ERROR);
             }
 
             onLoadFinished();
@@ -433,8 +444,7 @@ public class DataService extends Service {
                     (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
             NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             if (!wifi.isConnected()) {
-                Toast.makeText(this, getString(R.string.wifi_not_connected), Toast.LENGTH_LONG)
-                        .show();
+                broadcast(BROADCAST_NO_WIFI);
                 onLoadFinished();
                 stopSelf(); // Can not continue without preference change
                 return;
@@ -442,7 +452,7 @@ public class DataService extends Service {
         }
 
         setLoading(true);
-        broadcast(STATUS_LOADING_STARTED);
+        broadcast(BROADCAST_STATUS_UPDATE, STATUS_LOADING_STARTED);
 
         // Get localized time
         Calendar localTime = Calendar.getInstance();
@@ -503,7 +513,7 @@ public class DataService extends Service {
         // Restore local copy only if no version upgrades are pending
         if(prefs.getBoolean(getString(R.string.pref_version_upgraded), false)) {
             setLoading(true);
-            broadcast(STATUS_LOADING_STARTED);
+            broadcast(BROADCAST_STATUS_UPDATE, STATUS_LOADING_STARTED);
             new Thread(new FileLoader()).start();
         } else {
             onBackupRecovered(null);
@@ -536,17 +546,27 @@ public class DataService extends Service {
      */
     private void onLoadFinished() {
         setLoading(false);
-        broadcast(STATUS_LOADING_FINISHED);
+        broadcast(BROADCAST_STATUS_UPDATE, STATUS_LOADING_FINISHED);
         OneDayScheduleWidgetProvider.notifyWidgets(getApplicationContext());
     }
 
     /**
      * Sends a local broadcast through the {@link android.support.v4.content.LocalBroadcastManager}
+     * @param identifier Broadcast identifier
      * @param type Status type
      */
-    private void broadcast(int type) {
-        Intent broadcastIntent = new Intent(BROADCAST_STATUS_UPDATE);
+    private void broadcast(String identifier, int type) {
+        Intent broadcastIntent = new Intent(identifier);
         broadcastIntent.putExtra(EXTRA_STATUS, type);
+        broadcastManager.sendBroadcast(broadcastIntent);
+    }
+
+    /**
+     * Sends a local broadcast through the {@link android.support.v4.content.LocalBroadcastManager}
+     * @param identifier Broadcast identifier
+     */
+    private void broadcast(String identifier) {
+        Intent broadcastIntent = new Intent(identifier);
         broadcastManager.sendBroadcast(broadcastIntent);
     }
 
