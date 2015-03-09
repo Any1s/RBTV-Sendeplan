@@ -31,14 +31,16 @@
             android:exported="false" />
         <service android:name=".DataService"
             android:exported="false" />
-        <receiver android:name="de.mbdevelopment.android.rbtvsendeplan.DeviceBootedReceiver" >
+        <receiver android:name=".StartServiceReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
         <receiver android:name="de.mbdevelopment.android.rbtvsendeplan.OneDayScheduleWidgetProvider" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
                 android:resource="@xml/one_day_schedule_widget_info" />

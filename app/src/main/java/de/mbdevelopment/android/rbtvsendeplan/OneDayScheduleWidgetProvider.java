@@ -22,6 +22,18 @@ public class OneDayScheduleWidgetProvider extends AppWidgetProvider {
     public static final String UPDATE_ACTION = "de.mbdevelopment.android.rbtvsendeplan.WIDGET_UPDATE_ACTION";
 
     @Override
+    public void onEnabled(Context context) {
+        super.onEnabled(context);
+
+        // Start data service the first time this widget is added somewhere. This handles the case
+        // in which the app is installed, but never started before adding the widget. In that case
+        // there is no data yet, so the service is started this one time in order to fetch initial
+        // data.
+        Intent serviceIntent = new Intent(context, DataService.class);
+        context.startService(serviceIntent);
+    }
+
+    @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
         // Catch the manual update action
         if (intent.getAction().equals(UPDATE_ACTION)) {

@@ -7,7 +7,7 @@ import android.content.Intent;
 /**
  * Receiver to start services on device (re)boot in order to restore the alarms and refresh data.
  */
-public class DeviceBootedReceiver extends BroadcastReceiver {
+public class StartServiceReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
