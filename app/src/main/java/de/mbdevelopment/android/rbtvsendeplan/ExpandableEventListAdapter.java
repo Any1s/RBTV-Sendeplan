@@ -94,32 +94,12 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         EventHolder eventHolder = (EventHolder) rowView.getTag();
 
         Event event = eventGroups.get(groupPosition).getEvents().get(childPosition);
-        Drawable indicator;
-
-        // Type colors for the whole row
         Resources resources = rowView.getResources();
-        StateListDrawable stateList = new StateListDrawable();
-        if (event.getType().equals(Event.Type.NEW)) {
-            stateList.addState(new int[] {android.R.attr.state_pressed},
-                    resources.getDrawable(R.color.new_background_selected));
-            stateList.addState(new int[]{}, resources.getDrawable(R.color.new_background));
-            indicator = resources.getDrawable(R.drawable.ic_new);
-        } else if (event.getType().equals(Event.Type.LIVE)) {
-            stateList.addState(new int[] {android.R.attr.state_pressed},
-                    resources.getDrawable(R.color.live_background_selected));
-            stateList.addState(new int[]{}, resources.getDrawable(R.color.live_background));
-            indicator = resources.getDrawable(R.drawable.ic_live);
-        } else {
-            stateList.addState(new int[] {android.R.attr.state_pressed},
-                    resources.getDrawable(R.color.default_background_selected));
-            stateList.addState(new int[]{}, resources.getDrawable(R.color.default_background));
-            indicator = resources.getDrawable(R.drawable.ic_rerun);
-        }
 
         // Commit background colors
-        rowView.setBackgroundDrawable(stateList);
+        rowView.setBackgroundDrawable(getBackgroundDrawable(event, resources));
 
-        // Indicate the currently running
+        // Indicate the currently running show with a text
         SpannableString runningIndicator = null;
         if (event.isCurrentlyRunning()) {
             runningIndicator = new SpannableString("   " +
@@ -134,14 +114,14 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         // Set data
         eventHolder.dateView.setTypeface(typeFaceBold);
         eventHolder.dateView.setText(formatEventDate(event.getStartDate()));
-        eventHolder.typeView.setImageDrawable(indicator);
+        eventHolder.typeView.setImageDrawable(getTypeDrawable(event, resources));
         eventHolder.nameView.setTypeface(typeFace);
         eventHolder.nameView.setText(event.getTitle());
         if (runningIndicator != null) {
             eventHolder.nameView.setTypeface(typeFaceLightItalic);
             eventHolder.nameView.append(runningIndicator);
         }
-        eventHolder.reminderView.setImageDrawable(getIconDrawable(event));
+        eventHolder.reminderView.setImageDrawable(getReminderDrawable(event));
 
         return rowView;
     }
@@ -151,7 +131,7 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @param event The event corresponding to the icon in question
      * @return The color id
      */
-    private Drawable getIconDrawable(Event event) {
+    private Drawable getReminderDrawable(Event event) {
         if (event.isCurrentlyRunning() || isOver(event)) {
             return emptyDrawable;
         }
@@ -159,6 +139,51 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
             return activity.getResources().getDrawable(R.drawable.ic_alarm_on_black_36dp);
         }
         return activity.getResources().getDrawable(R.drawable.ic_alarm_add_grey600_36dp);
+    }
+
+    private Drawable getBackgroundDrawable(Event event, Resources resources) {
+        boolean runningNow = event.isCurrentlyRunning();
+        if (event.getType().equals(Event.Type.NEW)) {
+            if (runningNow) {
+                return resources.getDrawable(R.drawable.new_now_background);
+            } else {
+                StateListDrawable stateList = new StateListDrawable();
+                stateList.addState(new int[]{android.R.attr.state_pressed},
+                        resources.getDrawable(R.color.new_background_selected));
+                stateList.addState(new int[]{}, resources.getDrawable(R.color.new_background));
+                return stateList;
+            }
+        } else if (event.getType().equals(Event.Type.LIVE)) {
+            if (runningNow) {
+                return resources.getDrawable(R.drawable.live_now_background);
+            } else {
+                StateListDrawable stateList = new StateListDrawable();
+                stateList.addState(new int[]{android.R.attr.state_pressed},
+                        resources.getDrawable(R.color.live_background_selected));
+                stateList.addState(new int[]{}, resources.getDrawable(R.color.live_background));
+                return stateList;
+            }
+        } else {
+            if (runningNow) {
+                return resources.getDrawable(R.drawable.rerun_now_background);
+            } else {
+                StateListDrawable stateList = new StateListDrawable();
+                stateList.addState(new int[]{android.R.attr.state_pressed},
+                        resources.getDrawable(R.color.rerun_background_selected));
+                stateList.addState(new int[]{}, resources.getDrawable(R.color.rerun_background));
+                return stateList;
+            }
+        }
+    }
+
+    private Drawable getTypeDrawable(Event event, Resources resources) {
+        if (event.getType().equals(Event.Type.NEW)) {
+            return resources.getDrawable(R.drawable.ic_new);
+        } else if (event.getType().equals(Event.Type.LIVE)) {
+            return resources.getDrawable(R.drawable.ic_live);
+        } else {
+            return resources.getDrawable(R.drawable.ic_rerun);
+        }
     }
 
     /**

@@ -68,6 +68,7 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
             return null;
         }
         Event event = eventList.get(position);
+        boolean runningNow = event.isCurrentlyRunning();
         DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
         RemoteViews remoteViews = new RemoteViews(context.getPackageName()
                 ,R.layout.widget_event_row);
@@ -75,24 +76,37 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
                 ,df.format(event.getStartDate().getTime()));
 
         // Set background color and show type symbol
-        int backgroundColor = R.color.default_background;
+        int backgroundResource;
         int typeSymbol;
         if (event.getType() == Event.Type.NEW) {
-            backgroundColor = R.color.new_background;
+            if (runningNow) {
+                backgroundResource = R.drawable.widget_new_now_background;
+            } else {
+                backgroundResource = R.color.new_background;
+            }
             typeSymbol = R.drawable.ic_new;
         } else if (event.getType() == Event.Type.LIVE) {
-            backgroundColor = R.color.live_background;
+            if (runningNow) {
+                backgroundResource = R.drawable.widget_live_now_background;
+            } else {
+                backgroundResource = R.color.live_background;
+            }
             typeSymbol = R.drawable.ic_live;
         } else {
+            if (runningNow) {
+                backgroundResource = R.drawable.widget_rerun_now_background;
+            } else {
+                backgroundResource = R.color.rerun_background;
+            }
             typeSymbol = R.drawable.ic_rerun;
         }
 
         remoteViews.setImageViewResource(R.id.widget_event_type, typeSymbol);
-        remoteViews.setInt(R.id.widget_event_row, "setBackgroundResource", backgroundColor);
+        remoteViews.setInt(R.id.widget_event_row, "setBackgroundResource", backgroundResource);
         remoteViews.setImageViewResource(R.id.widget_event_reminder, getReminderResource(event));
 
         // Set title and indicate the currently running
-        if (event.isCurrentlyRunning()) {
+        if (runningNow) {
             SpannableString runningIndicator = new SpannableString("   " +
                     context.getResources().getString(R.string.running_indicator));
             runningIndicator.setSpan(new ForegroundColorSpan(
