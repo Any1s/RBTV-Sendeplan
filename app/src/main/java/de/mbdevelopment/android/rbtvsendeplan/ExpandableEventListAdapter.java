@@ -153,7 +153,14 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         return activity.getResources().getDrawable(R.drawable.ic_alarm_add_grey600_36dp);
     }
 
+    /**
+     * Fetches the appropriate background drawable for the event based on it's type and state.
+     * @param event The drawable will be determined based on this event's type and state
+     * @param resources Resources to be used to fetch the drawable
+     * @return Drawable for the event's background.
+     */
     private Drawable getBackgroundDrawable(Event event, Resources resources) {
+        if (event == null || resources == null) return null;
         boolean runningNow = event.isCurrentlyRunning();
         if (event.getType().equals(Event.Type.NEW)) {
             if (runningNow) {
@@ -188,7 +195,14 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         }
     }
 
+    /**
+     * Fetches the appropriate drawable for an event's type.
+     * @param event The drawable will be determined based on this event's type
+     * @param resources Resources to be used to fetch the drawable
+     * @return Drawable for the event's type.
+     */
     private Drawable getTypeDrawable(Event event, Resources resources) {
+        if (event == null || resources == null) return null;
         if (event.getType().equals(Event.Type.NEW)) {
             return resources.getDrawable(R.drawable.ic_new);
         } else if (event.getType().equals(Event.Type.LIVE)) {
