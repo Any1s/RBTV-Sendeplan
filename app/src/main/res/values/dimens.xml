@@ -28,8 +28,8 @@
     <dimen name="one_day_schedule_widget_header_padding">8dp</dimen>
     <dimen name="widget_event_list_padding_left">0dp</dimen>
     <dimen name="widget_event_list_padding_right">8dp</dimen>
-    <dimen name="widget_event_list_padding_top">0dp</dimen>
-    <dimen name="widget_event_list_padding_bottom">5dp</dimen>
+    <dimen name="widget_event_list_padding_top">3dp</dimen>
+    <dimen name="widget_event_list_padding_bottom">3dp</dimen>
     <dimen name="widget_event_list_type_size">26sp</dimen>
     <dimen name="widget_event_list_date_width">52sp</dimen>
     <dimen name="widget_event_list_reminder_size">27sp</dimen>

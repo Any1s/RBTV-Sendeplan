@@ -34,6 +34,10 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     private final Typeface typeFace;
     private final Typeface typeFaceLightItalic;
     private final Typeface typeFaceBold;
+    private final int rowPaddingLeft;
+    private final int rowPaddingRight;
+    private final int rowPaddingTop;
+    private final int rowPaddingBottom;
 
     /**
      * View Holder for the list entries, using the Holder Pattern.
@@ -73,6 +77,12 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         inflater = activity.getLayoutInflater();
         this.activity = activity;
         callbacks = (ReminderCallbacks) activity;
+
+        Resources resources = activity.getResources();
+        rowPaddingLeft = resources.getDimensionPixelSize(R.dimen.event_list_padding_left);
+        rowPaddingRight = resources.getDimensionPixelSize(R.dimen.event_list_padding_right);
+        rowPaddingTop = resources.getDimensionPixelSize(R.dimen.event_list_padding_top);
+        rowPaddingBottom = resources.getDimensionPixelSize(R.dimen.event_list_padding_bottom);
     }
 
     @Override
@@ -96,8 +106,10 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         Event event = eventGroups.get(groupPosition).getEvents().get(childPosition);
         Resources resources = rowView.getResources();
 
-        // Commit background colors
+        // Commit background
         rowView.setBackgroundDrawable(getBackgroundDrawable(event, resources));
+        // Needed for Android < 5.0 to reset padding
+        rowView.setPadding(rowPaddingLeft, rowPaddingTop, rowPaddingRight, rowPaddingBottom);
 
         // Indicate the currently running show with a text
         SpannableString runningIndicator = null;

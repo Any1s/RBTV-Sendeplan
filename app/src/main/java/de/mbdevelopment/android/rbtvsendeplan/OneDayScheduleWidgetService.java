@@ -5,8 +5,10 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -40,11 +42,20 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
     private List<String> reminderList;
     private final Context context;
     private final int appwidgetId;
+    private final int rowPaddingLeft;
+    private final int rowPaddingRight;
+    private final int rowPaddingTop;
+    private final int rowPaddingBottom;
 
     public OneDayScheduleRemoteViewsFactory(Context context, Intent intent) {
         this.context = context;
         appwidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID
                 , AppWidgetManager.INVALID_APPWIDGET_ID);
+        Resources resources = context.getResources();
+        rowPaddingLeft = resources.getDimensionPixelSize(R.dimen.widget_event_list_padding_left);
+        rowPaddingRight = resources.getDimensionPixelSize(R.dimen.widget_event_list_padding_right);
+        rowPaddingTop = resources.getDimensionPixelSize(R.dimen.widget_event_list_padding_top);
+        rowPaddingBottom = resources.getDimensionPixelSize(R.dimen.widget_event_list_padding_bottom);
     }
 
     @Override
@@ -104,6 +115,12 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
         remoteViews.setImageViewResource(R.id.widget_event_type, typeSymbol);
         remoteViews.setInt(R.id.widget_event_row, "setBackgroundResource", backgroundResource);
         remoteViews.setImageViewResource(R.id.widget_event_reminder, getReminderResource(event));
+
+        // Needed for Android < 5.0 to reset padding. Unfortunately, this isn't available for ICS.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            remoteViews.setViewPadding(R.id.widget_event_row, rowPaddingLeft, rowPaddingTop,
+                    rowPaddingRight, rowPaddingBottom);
+        }
 
         // Set title and indicate the currently running
         if (runningNow) {
