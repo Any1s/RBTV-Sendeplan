@@ -33,6 +33,7 @@ import java.io.ObjectOutputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,6 +48,11 @@ import java.util.concurrent.locks.Lock;
  */
 public class ReminderService extends Service
         implements SharedPreferences.OnSharedPreferenceChangeListener {
+
+    /**
+     * Version of this service for upgrade purposes
+     */
+    private static final int VERSION = 1;
 
     /**
      * Flag indicating that a reminder status has changed
@@ -67,6 +73,16 @@ public class ReminderService extends Service
      * Identifier string for the event id in {@link Intent} extras
      */
     private static final String EXTRA_ID = "event_id";
+
+    /**
+     * Identifier string for the event title in {@link Intent} extras
+     */
+    private static final String EXTRA_TITLE = "event_title";
+
+    /**
+     * Identifier string for the event start time in {@link Intent} extras
+     */
+    private static final String EXTRA_TIME = "event_time";
 
     /**
      * Signal to indicate a freshly booted system
@@ -134,9 +150,14 @@ public class ReminderService extends Service
     private Thread backupWriterThread;
 
     /**
-     * Flag indicating if the current app version has performed all necessary upgrades
+     * Flag indicating if the current app version has performed all necessary version 13 upgrades
      */
-    private boolean versionUpgraded;
+    private boolean version13Upgraded;
+
+    /**
+     * Version number to which the data & service have been upgraded
+     */
+    private int upgradeVersion;
 
     /**
      * Bitmap that holds the Android Wear Fullscreen background image
@@ -218,8 +239,11 @@ public class ReminderService extends Service
         // Restore counter as not to duplicate any alarm IDs
         alarmCounter = preferences.getInt(PREF_COUNTER, 0);
 
-        // Get upgrade flag
-        versionUpgraded = preferences.getBoolean(getString(R.string.pref_version_upgraded), false);
+        // Get upgrade flag for version 13
+        version13Upgraded = preferences.getBoolean(getString(R.string.pref_version_upgraded), false);
+
+        // Get upgrade version
+        upgradeVersion = preferences.getInt(getString(R.string.pref_reminder_service_version), 0);
 
         // Start backup writer thread
         BackupWriter backupWriter = new BackupWriter(writeQueue, this);
@@ -243,6 +267,11 @@ public class ReminderService extends Service
             restoreBackup(false);
         }
 
+        // Upgrade
+        if (upgradeVersion < VERSION) {
+            performUpgrade();
+        }
+
         // Get messenger from activity
         if (intent != null && intent.hasExtra(ScheduleActivity.EXTRA_MESSENGER)) {
             Bundle extras = intent.getExtras();
@@ -251,7 +280,11 @@ public class ReminderService extends Service
 
         // Catch alarm events
         if (intent != null && intent.hasExtra(EXTRA_ID)) {
-            handleAlarm(intent.getStringExtra(EXTRA_ID));
+            String title = intent.getStringExtra(EXTRA_TITLE);
+            Date date = (Date) intent.getSerializableExtra(EXTRA_TIME);
+            // Handle fail safe
+            handleAlarm(intent.getStringExtra(EXTRA_ID), title == null ? "" : title,
+                    date == null ? Calendar.getInstance().getTime() : date);
         }
 
         // Indicate this instance has been started at least once, so a backup should have been
@@ -265,7 +298,7 @@ public class ReminderService extends Service
      * Handles setting a notification for an event identified by id
      * @param id ID of the event that caused the notification
      */
-    private void handleAlarm(String id) {
+    private void handleAlarm(String id, String title, Date date) {
         // Notification
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
@@ -284,9 +317,8 @@ public class ReminderService extends Service
                 PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(idToEventMap.get(id).getTitle())
-                .setContentText(String.format(getString(R.string.reminder_text),
-                        df.format(idToEventMap.get(id).getStartDate().getTime())))
+                .setContentTitle(title)
+                .setContentText(String.format(getString(R.string.reminder_text), df.format(date)))
                 .setContentIntent(clickIntent)
                 .addAction(R.drawable.ic_play_circle_fill_white_36dp,
                         getString(R.string.notification_open_twitch_action_text),
@@ -368,6 +400,8 @@ public class ReminderService extends Service
         // Add reminder
         Intent alarmIntent = new Intent(this, ReminderService.class);
         alarmIntent.putExtra(EXTRA_ID, event.getId());
+        alarmIntent.putExtra(EXTRA_TITLE, event.getTitle());
+        alarmIntent.putExtra(EXTRA_TIME, event.getStartDate().getTime());
         PendingIntent pendingAlarmIntent = PendingIntent.getService(this, alarmCounter,
                 alarmIntent, 0);
 
@@ -425,7 +459,7 @@ public class ReminderService extends Service
         if (eventGroups == null || eventGroups.size() < 1) return;
 
         // Perform one-time upgrades on application version changes that require it
-        if (!versionUpgraded) refreshReminderData(eventGroups);
+        if (!version13Upgraded) refreshReminderData(eventGroups);
 
         boolean hasChanged = false;
         for (int i = 0; i < eventGroups.size(); i++) {
@@ -769,6 +803,25 @@ public class ReminderService extends Service
         // Save state
         PreferenceManager.getDefaultSharedPreferences(this).edit()
                 .putBoolean(getString(R.string.pref_version_upgraded), true).commit();
-        versionUpgraded = true;
+        version13Upgraded = true;
+    }
+
+    /**
+     * Upgrades service data to comply to new data formats and to assure backward compatibility.
+     */
+    private void performUpgrade() {
+        // Reminder intents changed
+        if (upgradeVersion < 1) {
+            // Re-set all reminders to comply to the new format
+            Event[] events = new Event[idToEventMap.size()];
+            idToEventMap.values().toArray(events);
+            for (Event e : events) {
+                removeReminder(e);
+                addReminder(e);
+            }
+            upgradeVersion = 1;
+            PreferenceManager.getDefaultSharedPreferences(this).edit()
+                    .putInt(getString(R.string.pref_reminder_service_version), 1).apply();
+        }
     }
 }
