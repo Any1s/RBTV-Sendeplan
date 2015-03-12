@@ -31,6 +31,11 @@
             android:exported="false" />
         <service android:name=".DataService"
             android:exported="false" />
+        <receiver android:name=".UpgradeReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".StartServiceReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

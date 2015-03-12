@@ -5,12 +5,12 @@
     <string name="pref_led">LED</string>
     <string name="pref_refresh">Sendeplan aktualisieren</string>
     <string name="pref_refresh_time">Aktualisierungsintervall</string>
-    <string name="pref_refresh_time_10minutes">10 Minuten</string>
-    <string name="pref_refresh_time_120minutes">2 Stunden</string>
     <string name="pref_refresh_time_15minutes">15 Minuten</string>
+    <string name="pref_refresh_time_20minutes">20 Minuten</string>
     <string name="pref_refresh_time_30minutes">30 Minuten</string>
-    <string name="pref_refresh_time_5minutes">5 Minuten</string>
     <string name="pref_refresh_time_60minutes">1 Stunde</string>
+    <string name="pref_refresh_time_90minutes">90 Minuten</string>
+    <string name="pref_refresh_time_120minutes">2 Stunden</string>
     <string name="pref_led_summary">LED aufblinken lassen, wenn eine markierte Show startet</string>
     <string name="pref_refresh_summary">Sendeplan automatisch nach einer Weile aktualisieren</string>
     <string name="pref_vibrate">Vibration</string>

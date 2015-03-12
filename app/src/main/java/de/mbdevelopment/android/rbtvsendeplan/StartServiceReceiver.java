@@ -11,6 +11,12 @@ public class StartServiceReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        // Only respond to valid actions
+        String action = intent.getAction();
+        if (action == null || !(action.equals("android.intent.action.BOOT_COMPLETED") ||
+                action.equals("android.intent.action.MY_PACKAGE_REPLACED"))) {
+            return;
+        }
 
         // Start reminder service
         Intent reminderIntent = new Intent(context, ReminderService.class);

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="pref_refresh_time_entries">
-        <item>@string/pref_refresh_time_5minutes</item>
-        <item>@string/pref_refresh_time_10minutes</item>
         <item>@string/pref_refresh_time_15minutes</item>
+        <item>@string/pref_refresh_time_20minutes</item>
         <item>@string/pref_refresh_time_30minutes</item>
         <item>@string/pref_refresh_time_60minutes</item>
+        <item>@string/pref_refresh_time_90minutes</item>
         <item>@string/pref_refresh_time_120minutes</item>
     </string-array>
     <string-array name="pref_refresh_time_values" translatable="false">
-        <item>5</item>
-        <item>10</item>
         <item>15</item>
+        <item>20</item>
         <item>30</item>
         <item>60</item>
+        <item>90</item>
         <item>120</item>
     </string-array>
     <string-array name="reminder_add_options">

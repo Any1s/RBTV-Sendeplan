@@ -32,11 +32,11 @@
     <string name="pref_reminder_offset_summary">Remind me %d minutes before the show</string> <!-- %d will be filled by the number of minutes -->
     <string name="title_activity_settings">Settings</string>
     <string name="reminder_text">Running at %s</string> <!-- %s will be filled by the time -->
-    <string name="pref_refresh_time_5minutes">5 minutes</string>
-    <string name="pref_refresh_time_10minutes">10 minutes</string>
     <string name="pref_refresh_time_15minutes">15 minutes</string>
+    <string name="pref_refresh_time_20minutes">20 minutes</string>
     <string name="pref_refresh_time_30minutes">30 minutes</string>
     <string name="pref_refresh_time_60minutes">1 hour</string>
+    <string name="pref_refresh_time_90minutes">90 minutes</string>
     <string name="pref_refresh_time_120minutes">2 hours</string>
     <string name="pref_refresh_time_summary">Reload period: %s</string> <!-- %s will be filled by the value name -->
     <string name="pref_reminder_offset_picker_hint">minutes</string>
@@ -59,7 +59,7 @@
     <!-- Localized End -->
 
     <!-- Preference values -->
-    <string name="pref_refresh_time_default" translatable="false">5</string>
+    <string name="pref_refresh_time_default" translatable="false">20</string>
     <string name="pref_reminder_offset_default" translatable="false">0</string>
 
 </resources>
