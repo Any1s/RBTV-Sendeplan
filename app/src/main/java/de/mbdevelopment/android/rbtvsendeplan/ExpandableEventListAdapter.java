@@ -1,6 +1,7 @@
 package de.mbdevelopment.android.rbtvsendeplan;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -8,6 +9,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.text.SpannableString;
+import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.SparseArray;
@@ -18,7 +20,6 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -30,6 +31,7 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     private final LayoutInflater inflater;
     private final Activity activity;
     private final ReminderCallbacks callbacks;
+    private final Context context;
     private final Drawable emptyDrawable = new ColorDrawable(Color.TRANSPARENT);
     private final Typeface typeFace;
     private final Typeface typeFaceLightItalic;
@@ -77,6 +79,7 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         inflater = activity.getLayoutInflater();
         this.activity = activity;
         callbacks = (ReminderCallbacks) activity;
+        context = activity.getApplicationContext();
 
         Resources resources = activity.getResources();
         rowPaddingLeft = resources.getDimensionPixelSize(R.dimen.event_list_padding_left);
@@ -228,8 +231,8 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @return Formatted string
      */
     private String formatEventDate(Calendar date) {
-        DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
-        return df.format(date.getTime());
+        return DateUtils.formatDateTime(context, date.getTimeInMillis(),
+                DateUtils.FORMAT_SHOW_TIME);
     }
 
     @Override
@@ -275,8 +278,9 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
      * @return Formatted date
      */
     private String formatGroupDate(Calendar date) {
-        DateFormat df = DateFormat.getDateInstance(DateFormat.FULL);
-        return df.format(date.getTime());
+        return DateUtils.formatDateTime(context, date.getTimeInMillis(),
+                DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_WEEKDAY |
+                        DateUtils.FORMAT_SHOW_YEAR | DateUtils.FORMAT_ABBREV_WEEKDAY);
     }
 
     @Override

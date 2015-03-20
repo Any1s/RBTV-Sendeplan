@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.widget.RemoteViews;
@@ -22,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -80,11 +80,12 @@ class OneDayScheduleRemoteViewsFactory implements RemoteViewsService.RemoteViews
         }
         Event event = eventList.get(position);
         boolean runningNow = event.isCurrentlyRunning();
-        DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
+        String time = DateUtils.formatDateTime(context, event.getStartDate().getTimeInMillis(),
+                DateUtils.FORMAT_SHOW_TIME);
         RemoteViews remoteViews = new RemoteViews(context.getPackageName()
                 ,R.layout.widget_event_row);
         remoteViews.setTextViewText(R.id.widget_event_date
-                ,df.format(event.getStartDate().getTime()));
+                ,time);
 
         // Set background color and show type symbol
         int backgroundResource;
