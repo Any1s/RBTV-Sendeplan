@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
+import android.support.v4.content.res.ResourcesCompat;
 import android.text.SpannableString;
 import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
@@ -151,9 +152,11 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
             return emptyDrawable;
         }
         if (callbacks.hasReminder(event)) {
-            return activity.getResources().getDrawable(R.drawable.ic_alarm_on_black_36dp);
+            return ResourcesCompat.getDrawable(activity.getResources(),
+                    R.drawable.ic_alarm_on_black_36dp, null);
         }
-        return activity.getResources().getDrawable(R.drawable.ic_alarm_add_grey600_36dp);
+        return ResourcesCompat.getDrawable(activity.getResources(),
+                R.drawable.ic_alarm_add_grey600_36dp, null);
     }
 
     /**
@@ -167,32 +170,39 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
         boolean runningNow = event.isCurrentlyRunning();
         if (event.getType().equals(Event.Type.NEW)) {
             if (runningNow) {
-                return resources.getDrawable(R.drawable.new_now_background);
+                return ResourcesCompat.getDrawable(resources, R.drawable.new_now_background, null);
             } else {
                 StateListDrawable stateList = new StateListDrawable();
                 stateList.addState(new int[]{android.R.attr.state_pressed},
-                        resources.getDrawable(R.color.new_background_selected));
-                stateList.addState(new int[]{}, resources.getDrawable(R.color.new_background));
+                        ResourcesCompat.getDrawable(resources, R.color.new_background_selected,
+                                null));
+                stateList.addState(new int[]{}, ResourcesCompat.getDrawable(resources,
+                        R.color.new_background, null));
                 return stateList;
             }
         } else if (event.getType().equals(Event.Type.LIVE)) {
             if (runningNow) {
-                return resources.getDrawable(R.drawable.live_now_background);
+                return ResourcesCompat.getDrawable(resources, R.drawable.live_now_background, null);
             } else {
                 StateListDrawable stateList = new StateListDrawable();
                 stateList.addState(new int[]{android.R.attr.state_pressed},
-                        resources.getDrawable(R.color.live_background_selected));
-                stateList.addState(new int[]{}, resources.getDrawable(R.color.live_background));
+                        ResourcesCompat.getDrawable(resources, R.color.live_background_selected,
+                                null));
+                stateList.addState(new int[]{}, ResourcesCompat.getDrawable(resources,
+                        R.color.live_background, null));
                 return stateList;
             }
         } else {
             if (runningNow) {
-                return resources.getDrawable(R.drawable.rerun_now_background);
+                return ResourcesCompat.getDrawable(resources, R.drawable.rerun_now_background,
+                        null);
             } else {
                 StateListDrawable stateList = new StateListDrawable();
                 stateList.addState(new int[]{android.R.attr.state_pressed},
-                        resources.getDrawable(R.color.rerun_background_selected));
-                stateList.addState(new int[]{}, resources.getDrawable(R.color.rerun_background));
+                        ResourcesCompat.getDrawable(resources, R.color.rerun_background_selected,
+                                null));
+                stateList.addState(new int[]{}, ResourcesCompat.getDrawable(resources,
+                        R.color.rerun_background, null));
                 return stateList;
             }
         }
@@ -207,11 +217,11 @@ class ExpandableEventListAdapter extends BaseExpandableListAdapter {
     private Drawable getTypeDrawable(Event event, Resources resources) {
         if (event == null || resources == null) return null;
         if (event.getType().equals(Event.Type.NEW)) {
-            return resources.getDrawable(R.drawable.ic_new);
+            return ResourcesCompat.getDrawable(resources, R.drawable.ic_new, null);
         } else if (event.getType().equals(Event.Type.LIVE)) {
-            return resources.getDrawable(R.drawable.ic_live);
+            return ResourcesCompat.getDrawable(resources, R.drawable.ic_live, null);
         } else {
-            return resources.getDrawable(R.drawable.ic_rerun);
+            return ResourcesCompat.getDrawable(resources, R.drawable.ic_rerun, null);
         }
     }
 
