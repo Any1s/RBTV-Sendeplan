@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
@@ -52,7 +53,7 @@ public class ReminderService extends Service
     /**
      * Version of this service for upgrade purposes
      */
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
 
     /**
      * Flag indicating that a reminder status has changed
@@ -408,9 +409,16 @@ public class ReminderService extends Service
         eventToIntentMap.put(event.getId(), alarmCounter++);
         idToEventMap.put(event.getId(), event);
 
-        alarmManager.set(AlarmManager.RTC_WAKEUP,
-                event.getStartDate().getTimeInMillis() - reminderOffset,
-                pendingAlarmIntent);
+        // Use exact alarm to ensure that notifications are delivered on time
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            alarmManager.set(AlarmManager.RTC_WAKEUP,
+                    event.getStartDate().getTimeInMillis() - reminderOffset,
+                    pendingAlarmIntent);
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP,
+                    event.getStartDate().getTimeInMillis() - reminderOffset,
+                    pendingAlarmIntent);
+        }
     }
 
     /**
@@ -811,7 +819,7 @@ public class ReminderService extends Service
      */
     private void performUpgrade() {
         // Reminder intents changed
-        if (upgradeVersion < 1) {
+        if (upgradeVersion < 2) {
             // Re-set all reminders to comply to the new format
             Event[] events = new Event[idToEventMap.size()];
             idToEventMap.values().toArray(events);
@@ -819,9 +827,9 @@ public class ReminderService extends Service
                 removeReminder(e);
                 addReminder(e);
             }
-            upgradeVersion = 1;
+            upgradeVersion = 2;
             PreferenceManager.getDefaultSharedPreferences(this).edit()
-                    .putInt(getString(R.string.pref_reminder_service_version), 1).apply();
+                    .putInt(getString(R.string.pref_reminder_service_version), 2).apply();
         }
     }
 }
